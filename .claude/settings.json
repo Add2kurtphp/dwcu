@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -o \"flex-\\\\[\" public/build/assets/*.css)",
+      "Bash(grep \"h-120\\\\|120px\" public/build/assets/*.css)",
+      "Bash(cat public/build/assets/*.css)",
+      "Bash(tr '{}' '\\\\n')",
+      "Bash(grep -oP \"\\\\.flex-\\\\\\\\[[\\\\d.]+\\\\\\\\]\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/)",
+      "Bash(curl -s http://localhost/dwcu-portal/public)"
+    ]
+  }
+}

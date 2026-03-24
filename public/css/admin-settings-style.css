@@ -1,0 +1,115 @@
+/* ============================================================
+   SYSTEM SETTINGS — slim CSS
+   Only for: focus states, responsive form grid,
+   toggle switch (:checked sibling selector), toast.
+   Static layout elements use inline styles in the blade.
+   ============================================================ */
+
+/* ── Settings form grid (responsive 2-col) ── */
+.settings-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+@media (max-width: 560px) {
+    .settings-form-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Text inputs (focus pseudo-class) ── */
+.settings-input {
+    width: 100%;
+    padding: 11px 14px 11px 36px;
+    border: 1.5px solid #e0e4f0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #0d1b44;
+    background: #fafbff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: 'Afacad', sans-serif;
+    outline: none;
+}
+
+.settings-input:focus {
+    border-color: #1e2f7a;
+    box-shadow: 0 0 0 3px rgba(30, 47, 122, 0.1);
+    background: #fff;
+}
+
+.settings-input::placeholder { color: #b8c0d4; }
+
+/* ── Toggle switch ── */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-track {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #dde1ee;
+    border-radius: 26px;
+    transition: background 0.3s;
+}
+
+.toggle-track::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 4px;
+    bottom: 4px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.toggle-switch input:checked + .toggle-track {
+    background: linear-gradient(135deg, #1e2f7a, #0d1b44);
+}
+
+.toggle-switch input:checked + .toggle-track::before {
+    transform: translateX(22px);
+}
+
+/* ── Toast notification ── */
+.settings-toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #0d1b44;
+    color: #fff;
+    padding: 13px 20px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: 'Afacad', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(13, 27, 68, 0.3);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+}
+
+.settings-toast i { color: #f1c40f; }
+
+.settings-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Mobile: save button full-width ── */
+@media (max-width: 768px) {
+    #saveSchoolInfo { width: 100%; justify-content: center; }
+}
