@@ -58,6 +58,12 @@
             from { transform: scale(0.88); opacity: 0; }
             to   { transform: scale(1);    opacity: 1; }
         }
+
+        @media (max-width: 768px) {
+            html, body { overflow-y: auto !important; height: auto !important; min-height: 100%; }
+            .logo-section { padding-top: 40px !important; }
+            .logo-section img { filter: none !important; }
+        }
     </style>
 </head>
 
@@ -217,11 +223,11 @@
         </div>
 
         {{-- ── Right: Logo ── --}}
-        <div class="flex items-center justify-center max-[768px]:py-8"
+        <div class="logo-section flex items-center justify-center max-[768px]:py-8"
              style="flex:1;padding:40px;background:rgba(255,255,255,0.02);">
             <div class="flex flex-col items-center text-center" style="gap:14px;">
                 <img src="{{ asset('image/logo-transparent.png') }}" alt="DWCU Logo"
-                     class="max-[768px]:w-1/2"
+                     class="max-[768px]:w-[130px]"
                      style="width:80%;filter:drop-shadow(0 0 20px rgba(30,47,122,0.5));">
                 <p class="font-semibold leading-relaxed tracking-wide"
                    style="font-size:0.95rem;color:rgba(255,255,255,0.75);">

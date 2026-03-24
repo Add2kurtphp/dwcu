@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Faculty;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class FacultyController extends Controller
 {
@@ -21,6 +22,7 @@ class FacultyController extends Controller
             'name'        => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'department'  => 'required|string|max:255',
+            'password'    => 'required|string|min:6',
         ]);
 
         $faculty = Faculty::create([
@@ -29,6 +31,7 @@ class FacultyController extends Controller
             'designation' => $request->designation,
             'department'  => $request->department,
             'status'      => 'active',
+            'password'    => Hash::make($request->password),
         ]);
 
         return response()->json(['success' => true, 'faculty' => $faculty]);
@@ -37,16 +40,23 @@ class FacultyController extends Controller
     public function update(Request $request, Faculty $faculty)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'designation' => 'required|string|max:255',
-            'department'  => 'required|string|max:255',
+            'name'         => 'required|string|max:255',
+            'designation'  => 'required|string|max:255',
+            'department'   => 'required|string|max:255',
+            'new_password' => 'nullable|string|min:6',
         ]);
 
-        $faculty->update([
+        $data = [
             'name'        => $request->name,
             'designation' => $request->designation,
             'department'  => $request->department,
-        ]);
+        ];
+
+        if ($request->filled('new_password')) {
+            $data['password'] = Hash::make($request->new_password);
+        }
+
+        $faculty->update($data);
 
         return response()->json(['success' => true, 'faculty' => $faculty]);
     }

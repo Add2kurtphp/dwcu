@@ -901,7 +901,7 @@
     <div class="mobile-logout">
         <form method="POST" action="{{ route('faculty.logout') }}">
             @csrf
-            <button type="submit" style="background:none;border:none;cursor:pointer;color:inherit;width:100%;text-align:left;font-family:'Afacad',sans-serif;font-size:1rem;">
+            <button type="submit" style="background:none;border:none;cursor:pointer;color:#fca5a5;font-weight:600;padding:10px;width:100%;border-radius:8px;font-family:'Afacad',sans-serif;font-size:1rem;">
                 <i class="fas fa-sign-out-alt"></i> Log out
             </button>
         </form>

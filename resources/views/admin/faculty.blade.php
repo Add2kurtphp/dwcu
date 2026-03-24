@@ -213,6 +213,16 @@
                     </div>
                 </div>
 
+                {{-- Password — required on Add, optional on Edit --}}
+                <div class="form-section-label" style="margin-top:20px;">Portal Access</div>
+                <div class="form-group" id="passwordGroup">
+                    <label for="fPassword" id="passwordLabel">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="fPassword" placeholder="Set login password" autocomplete="new-password">
+                    </div>
+                </div>
+
                 {{-- Permissions — shown only on Edit --}}
                 <div class="permissions-section" id="permissionsSection" style="display:none;">
                     <div class="form-section-label">Feature Access Control</div>

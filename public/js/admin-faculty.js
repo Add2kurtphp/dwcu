@@ -41,6 +41,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function showModal(isEdit, row) {
         facultyForm.reset();
 
+        var pwInput = document.getElementById('fPassword');
+        var pwLabel = document.getElementById('passwordLabel');
+
         if (isEdit && row) {
             currentEditId            = row.dataset.id;
             modalIcon.className      = 'fas fa-user-edit';
@@ -58,6 +61,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 opt.selected = opt.text === row.dataset.department;
             });
 
+            pwInput.required    = false;
+            pwInput.placeholder = 'Leave blank to keep current';
+            pwLabel.textContent = 'Reset Password (optional)';
             permSection.style.display = 'block';
         } else {
             currentEditId            = null;
@@ -66,6 +72,10 @@ document.addEventListener('DOMContentLoaded', function () {
             modalSubtitle.textContent = 'Fill in the details to register a new faculty member.';
             modalSaveBtn.innerHTML   = '<i class="fas fa-save"></i> Save Faculty Member';
             document.getElementById('fID').readOnly = false;
+
+            pwInput.required    = true;
+            pwInput.placeholder = 'Set login password';
+            pwLabel.textContent = 'Password';
             permSection.style.display = 'none';
         }
 
@@ -174,12 +184,19 @@ document.addEventListener('DOMContentLoaded', function () {
     facultyForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
+        var pw   = document.getElementById('fPassword').value;
         var body = {
             faculty_id:  document.getElementById('fID').value.trim(),
             name:        document.getElementById('fName').value.trim(),
             designation: document.getElementById('fTitle').value.trim(),
             department:  document.getElementById('fDept').value,
         };
+
+        if (currentEditId) {
+            if (pw) body.new_password = pw;
+        } else {
+            body.password = pw;
+        }
 
         if (currentEditId) {
             // PATCH — edit existing

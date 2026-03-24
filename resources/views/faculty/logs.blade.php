@@ -251,6 +251,10 @@
         .r-satisfactory { background: #fef9c3; color: #a16207; }
         .r-needs        { background: #fee2e2; color: #b91c1c; }
 
+        /* ── Mobile logout button fix ── */
+        .mobile-nav-drawer .mobile-logout button { color: #fca5a5; }
+        .mobile-nav-drawer .mobile-logout button:hover { background: rgba(248,113,113,0.1); border-radius: 8px; }
+
         /* ── Responsive ── */
         @media (max-width: 768px) {
             .logs-topbar   { flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -470,7 +474,7 @@
     <div class="mobile-logout">
         <form method="POST" action="{{ route('faculty.logout') }}">
             @csrf
-            <button type="submit" style="background:none;border:none;cursor:pointer;color:inherit;width:100%;text-align:left;font-family:'Afacad',sans-serif;font-size:1rem;">
+            <button type="submit" style="background:none;border:none;cursor:pointer;color:#fca5a5;font-weight:600;padding:10px;width:100%;border-radius:8px;font-family:'Afacad',sans-serif;font-size:1rem;">
                 <i class="fas fa-sign-out-alt"></i> Log out
             </button>
         </form>

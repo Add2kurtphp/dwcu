@@ -16,6 +16,8 @@
         .portal-identity                            { color: #ccff00 !important; }
         .nav-link-item.active                       { background: #ccff00 !important; color: #0d1b44 !important; box-shadow: 0 4px 15px rgba(204,255,0,0.2) !important; border-left-color: #0d1b44 !important; }
         .mobile-nav-drawer .nav-item.active-drawer  { background: #ccff00 !important; color: #0d1b44 !important; }
+        .mobile-nav-drawer .mobile-logout button { color: #fca5a5; }
+        .mobile-nav-drawer .mobile-logout button:hover { background: rgba(248,113,113,0.1); border-radius: 8px; }
 
         /* ── Page title & profile icon ── */
         .page-title         { font-size: 1.6rem; font-weight: 800; color: #0d1b44; margin: 0; }
@@ -587,7 +589,7 @@
     <div class="mobile-logout">
         <form method="POST" action="{{ route('faculty.logout') }}">
             @csrf
-            <button type="submit" style="background:none;border:none;cursor:pointer;color:inherit;width:100%;text-align:left;font-family:'Afacad',sans-serif;font-size:1rem;">
+            <button type="submit" style="background:none;border:none;cursor:pointer;color:#fca5a5;font-weight:600;padding:10px;width:100%;border-radius:8px;font-family:'Afacad',sans-serif;font-size:1rem;">
                 <i class="fas fa-sign-out-alt"></i> Log out
             </button>
         </form>
