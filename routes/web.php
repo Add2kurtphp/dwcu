@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Faculty\FacultyAuthController;
 use App\Http\Controllers\Faculty\FacultyProfileController;
+use App\Http\Controllers\JHS\JHSAuthController;
+use App\Http\Controllers\JHS\JHSProfileController;
 
 // Homepage
 Route::get('/', function () {
@@ -30,10 +32,21 @@ Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
 
-// Login pages (other roles — views TBD)
-Route::get('/jhs/login', function () {
-    return view('auth.jhs-login');
-})->name('jhs.login');
+// JHS Auth
+Route::get('/jhs/login',  function () { return view('auth.jhs-login'); })->name('jhs.login');
+Route::post('/jhs/login', [JHSAuthController::class, 'login'])->name('jhs.login.post');
+Route::post('/jhs/logout', [JHSAuthController::class, 'logout'])->name('jhs.logout');
+
+// JHS Protected Routes
+Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
+    Route::get('/dashboard', function () {
+        return redirect()->route('jhs.profile');
+    })->name('dashboard');
+
+    Route::get('/profile',            [JHSProfileController::class, 'show'])->name('profile');
+    Route::patch('/profile/info',     [JHSProfileController::class, 'updateInfo'])->name('profile.update');
+    Route::patch('/profile/password', [JHSProfileController::class, 'updatePassword'])->name('profile.password');
+});
 
 Route::get('/shs/login', function () {
     return view('auth.shs-login');
