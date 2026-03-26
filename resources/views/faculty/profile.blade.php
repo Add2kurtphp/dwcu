@@ -438,5 +438,73 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+
+{{-- ══════════════════════════════════════════
+     SUCCESS MODAL — PERSONAL INFO
+     ══════════════════════════════════════════ --}}
+<div id="profileModal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
+    {{-- Backdrop --}}
+    <div style="position:absolute;inset:0;background:rgba(13,27,68,0.55);backdrop-filter:blur(4px);" onclick="closeProfileModal()"></div>
+    {{-- Card --}}
+    <div style="position:relative;background:#fff;border-radius:24px;padding:40px 36px 32px;max-width:400px;width:90%;box-shadow:0 24px 60px rgba(13,27,68,0.22);text-align:center;animation:modalPop 0.35s cubic-bezier(.34,1.56,.64,1) both;">
+        {{-- Icon --}}
+        <div style="width:68px;height:68px;background:linear-gradient(135deg,#ccff00,#a8d400);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(204,255,0,0.35);">
+            <i class="fas fa-user-check" style="font-size:1.6rem;color:#0d1b44;"></i>
+        </div>
+        <h3 style="font-size:1.25rem;font-weight:800;color:#0d1b44;margin:0 0 8px;">Profile Updated!</h3>
+        <p style="font-size:0.88rem;color:#8892b0;margin:0 0 28px;line-height:1.6;">Your personal information has been saved successfully.</p>
+        {{-- Divider --}}
+        <div style="height:1px;background:linear-gradient(90deg,transparent,#e0e4f0,transparent);margin-bottom:24px;"></div>
+        <button onclick="closeProfileModal()" style="background:linear-gradient(135deg,#ccff00,#a8d400);color:#0d1b44;border:none;padding:12px 32px;border-radius:12px;font-family:'Afacad',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;box-shadow:0 4px 14px rgba(204,255,0,0.3);transition:transform 0.2s;"
+                onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            Got it
+        </button>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════
+     SUCCESS MODAL — PASSWORD
+     ══════════════════════════════════════════ --}}
+<div id="passwordModal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
+    {{-- Backdrop --}}
+    <div style="position:absolute;inset:0;background:rgba(13,27,68,0.55);backdrop-filter:blur(4px);" onclick="closePasswordModal()"></div>
+    {{-- Card --}}
+    <div style="position:relative;background:#fff;border-radius:24px;padding:40px 36px 32px;max-width:400px;width:90%;box-shadow:0 24px 60px rgba(13,27,68,0.22);text-align:center;animation:modalPop 0.35s cubic-bezier(.34,1.56,.64,1) both;">
+        {{-- Icon --}}
+        <div style="width:68px;height:68px;background:linear-gradient(135deg,#1e2f7a,#0d1b44);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(30,47,122,0.3);">
+            <i class="fas fa-shield-alt" style="font-size:1.6rem;color:#ccff00;"></i>
+        </div>
+        <h3 style="font-size:1.25rem;font-weight:800;color:#0d1b44;margin:0 0 8px;">Password Changed!</h3>
+        <p style="font-size:0.88rem;color:#8892b0;margin:0 0 28px;line-height:1.6;">Your password has been updated successfully. Keep it safe!</p>
+        {{-- Divider --}}
+        <div style="height:1px;background:linear-gradient(90deg,transparent,#e0e4f0,transparent);margin-bottom:24px;"></div>
+        <button onclick="closePasswordModal()" style="background:linear-gradient(135deg,#1e2f7a,#0d1b44);color:#ccff00;border:none;padding:12px 32px;border-radius:12px;font-family:'Afacad',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;box-shadow:0 4px 14px rgba(13,27,68,0.25);transition:transform 0.2s;"
+                onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            Got it
+        </button>
+    </div>
+</div>
+
+<style>
+@keyframes modalPop {
+    from { opacity:0; transform:scale(0.85) translateY(20px); }
+    to   { opacity:1; transform:scale(1)    translateY(0);    }
+}
+</style>
+
+<script>
+function openProfileModal()  { var m = document.getElementById('profileModal');  m.style.display='flex'; }
+function closeProfileModal() { var m = document.getElementById('profileModal');  m.style.display='none'; }
+function openPasswordModal()  { var m = document.getElementById('passwordModal'); m.style.display='flex'; }
+function closePasswordModal() { var m = document.getElementById('passwordModal'); m.style.display='none'; }
+
+if(session('profile_success'))
+    openProfileModal();
+endif
+if(session('password_success'))
+    openPasswordModal();
+endif
+</script>
+
 </body>
 </html>
