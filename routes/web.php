@@ -46,6 +46,30 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
     Route::get('/profile',            [JHSProfileController::class, 'show'])->name('profile');
     Route::patch('/profile/info',     [JHSProfileController::class, 'updateInfo'])->name('profile.update');
     Route::patch('/profile/password', [JHSProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::get('/announcement', function () {
+        return view('jhs.announcement');
+    })->name('announcement');
+
+    Route::get('/assignments', function () {
+        return view('jhs.assignments');
+    })->name('assignments');
+
+    Route::get('/quizzes', function () {
+        return view('jhs.quizzes');
+    })->name('quizzes');
+
+    Route::get('/gradebook', function () {
+        return view('jhs.gradebook');
+    })->name('gradebook');
+
+    Route::get('/calendar', function () {
+        return view('jhs.calendar');
+    })->name('calendar');
+
+    Route::get('/logs', function () {
+        return view('jhs.logs');
+    })->name('logs');
 });
 
 Route::get('/shs/login', function () {

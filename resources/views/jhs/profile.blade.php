@@ -177,10 +177,8 @@
 
         @media (max-width: 1100px) { .info-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
-            body { overflow-x: hidden; overflow-y: auto; flex-direction: column; height: auto; min-height: 100vh; }
             .sidebar { display: none; }
             .hamburger-btn { display: block; }
-            .content-area { width: 100%; overflow-x: hidden; overflow-y: visible; }
 
             /* ── Header stays in one row ── */
             .main-header {
@@ -197,7 +195,7 @@
             .header-user i { font-size: 1.4rem; }
 
             /* ── Scroll container ── */
-            .scroll-container { padding: 14px; overflow-y: visible; }
+            .scroll-container { padding: 14px; }
 
             /* ── Profile banner ── */
             .profile-banner {
@@ -236,12 +234,12 @@
             <p class="sub-brand">Junior High</p>
         </div>
         <nav class="nav-menu">
-            <a href="#" class="nav-item"><i class="fas fa-bullhorn"></i> Announcement</a>
-            <a href="#" class="nav-item"><i class="fas fa-tasks"></i> Assignments</a>
-            <a href="#" class="nav-item"><i class="fas fa-edit"></i> Quizzes</a>
-            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Gradebook</a>
-            <a href="#" class="nav-item"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            <a href="#" class="nav-item"><i class="fas fa-history"></i> Activity Logs</a>
+            <a href="{{ route('jhs.announcement') }}" class="nav-item"><i class="fas fa-bullhorn"></i> Announcement</a>
+            <a href="{{ route('jhs.assignments') }}" class="nav-item"><i class="fas fa-tasks"></i> Assignments</a>
+            <a href="{{ route('jhs.quizzes') }}" class="nav-item"><i class="fas fa-edit"></i> Quizzes</a>
+            <a href="{{ route('jhs.gradebook') }}" class="nav-item"><i class="fas fa-chart-line"></i> Gradebook</a>
+            <a href="{{ route('jhs.calendar') }}" class="nav-item"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <a href="{{ route('jhs.logs') }}" class="nav-item"><i class="fas fa-history"></i> Activity Logs</a>
         </nav>
     </div>
     <div class="sidebar-bottom">
@@ -483,11 +481,12 @@
         <p>DIVINE WORD COLLEGE<br>OF URDANETA</p>
         <span>Junior High</span>
     </div>
-    <a href="#" class="nav-item"><i class="fas fa-bullhorn"></i> Announcement</a>
-    <a href="#" class="nav-item"><i class="fas fa-tasks"></i> Assignments</a>
-    <a href="#" class="nav-item"><i class="fas fa-edit"></i> Quizzes</a>
-    <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Gradebook</a>
-    <a href="#" class="nav-item"><i class="fas fa-calendar-alt"></i> Activity Logs</a>
+    <a href="{{ route('jhs.announcement') }}" class="nav-item"><i class="fas fa-bullhorn"></i> Announcement</a>
+    <a href="{{ route('jhs.assignments') }}" class="nav-item"><i class="fas fa-tasks"></i> Assignments</a>
+    <a href="{{ route('jhs.quizzes') }}" class="nav-item"><i class="fas fa-edit"></i> Quizzes</a>
+    <a href="{{ route('jhs.gradebook') }}" class="nav-item"><i class="fas fa-chart-line"></i> Gradebook</a>
+    <a href="{{ route('jhs.calendar') }}" class="nav-item"><i class="fas fa-calendar-alt"></i> Calendar</a>
+    <a href="{{ route('jhs.logs') }}" class="nav-item"><i class="fas fa-history"></i> Activity Logs</a>
     <div class="mobile-logout">
         <form method="POST" action="{{ route('jhs.logout') }}">
             @csrf
