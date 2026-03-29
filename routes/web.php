@@ -13,6 +13,8 @@ use App\Http\Controllers\Faculty\FacultyAuthController;
 use App\Http\Controllers\Faculty\FacultyProfileController;
 use App\Http\Controllers\JHS\JHSAuthController;
 use App\Http\Controllers\JHS\JHSProfileController;
+use App\Http\Controllers\SHS\SHSAuthController;
+use App\Http\Controllers\SHS\SHSProfileController;
 
 // Homepage
 Route::get('/', function () {
@@ -72,9 +74,28 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
     })->name('logs');
 });
 
-Route::get('/shs/login', function () {
-    return view('auth.shs-login');
-})->name('shs.login');
+// SHS Auth
+Route::get('/shs/login',  function () { return view('auth.shs-login'); })->name('shs.login');
+Route::post('/shs/login', [SHSAuthController::class, 'login'])->name('shs.login.post');
+Route::post('/shs/logout', [SHSAuthController::class, 'logout'])->name('shs.logout');
+
+// SHS Protected Routes
+Route::middleware('shs')->prefix('shs')->name('shs.')->group(function () {
+    Route::get('/dashboard', function () {
+        return redirect()->route('shs.profile');
+    })->name('dashboard');
+
+    Route::get('/profile',            [SHSProfileController::class, 'show'])->name('profile');
+    Route::patch('/profile/info',     [SHSProfileController::class, 'updateInfo'])->name('profile.update');
+    Route::patch('/profile/password', [SHSProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::get('/announcement', function () { return view('shs.announcement'); })->name('announcement');
+    Route::get('/assignments',  function () { return view('shs.assignments'); })->name('assignments');
+    Route::get('/quizzes',      function () { return view('shs.quizzes'); })->name('quizzes');
+    Route::get('/gradebook',    function () { return view('shs.gradebook'); })->name('gradebook');
+    Route::get('/calendar',     function () { return view('shs.calendar'); })->name('calendar');
+    Route::get('/logs',         function () { return view('shs.logs'); })->name('logs');
+});
 
 Route::get('/faculty/login', function () {
     return view('auth.faculty-login');
