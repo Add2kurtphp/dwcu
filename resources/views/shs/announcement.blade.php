@@ -57,13 +57,14 @@
         .content-area { flex:1; display:flex; flex-direction:column; overflow:hidden; }
         .main-header {
             background:var(--white); padding:18px 40px;
-            display:flex; justify-content:space-between; align-items:center;
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:nowrap;
             border-bottom:1px solid #e2e8f0; flex-shrink:0;
         }
         .main-header h1 { font-size:1.35rem; font-weight:700; color:var(--primary-blue); }
         .header-user {
             display:flex; align-items:center; gap:10px; padding:8px 16px;
             border-radius:50px; text-decoration:none; transition:all 0.2s ease; border:1px solid transparent;
+            flex-shrink:0;
         }
         .header-user:hover { background-color:#f1f5f9; border-color:#e2e8f0; }
         .header-user i { font-size:1.5rem; color:var(--primary-blue); }

@@ -56,19 +56,19 @@
         .content-area { flex:1; display:flex; flex-direction:column; overflow:hidden; }
         .main-header {
             background:var(--white); padding:18px 40px;
-            display:flex; justify-content:space-between; align-items:center;
-            box-shadow:0 2px 10px rgba(0,0,0,0.06); flex-shrink:0;
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:nowrap;
+            border-bottom:1px solid #e2e8f0; flex-shrink:0;
         }
-        .main-header h1 { font-size:1.4rem; font-weight:700; color:var(--primary-blue); }
+        .main-header h1 { font-size:1.35rem; font-weight:700; color:var(--primary-blue); }
         .header-user {
-            display:flex; align-items:center; gap:10px;
-            font-size:0.95rem; font-weight:600; color:var(--primary-blue);
+            display:flex; align-items:center; gap:10px; padding:8px 16px;
+            border-radius:50px; text-decoration:none; transition:all 0.2s ease; border:1px solid transparent;
+            flex-shrink:0;
         }
-        .header-user i { font-size:1.2rem; color:#fbbf24; }
-        .hamburger-btn {
-            display:none; background:none; border:none; cursor:pointer;
-            font-size:1.3rem; color:var(--primary-blue);
-        }
+        .header-user:hover { background-color:#f1f5f9; border-color:#e2e8f0; }
+        .header-user i { font-size:1.5rem; color:var(--primary-blue); }
+        .header-user span { font-weight:600; font-size:0.9rem; color:var(--text-dark); }
+        .hamburger-btn { display:none; background:none; border:none; color:var(--primary-blue); font-size:1.6rem; cursor:pointer; padding:4px 8px; line-height:1; }
 
         .scroll-container { flex:1; overflow-y:auto; padding:28px 40px; }
         .scroll-container::-webkit-scrollbar { width:5px; }
@@ -317,11 +317,15 @@
         .mobile-logout a:hover { background:rgba(248,113,113,0.15); color:#fff; }
 
         /* ── Responsive ── */
-        @media (max-width: 768px) {
+        @media (max-width:768px) {
+            body { overflow-x:hidden; overflow-y:auto; flex-direction:column; height:auto; min-height:100vh; }
             .sidebar { display:none; }
             .hamburger-btn { display:block; }
-            .main-header { padding:16px 20px; }
-            .scroll-container { padding:20px 16px; }
+            .content-area { width:100%; overflow-x:hidden; overflow-y:visible; }
+            .main-header { padding:12px 16px; position:sticky; top:0; z-index:100; }
+            .main-header h1 { font-size:1.05rem; }
+            .header-user span { display:none; }
+            .scroll-container { padding:16px; overflow-y:visible; }
             .assign-summary-bar { flex-direction:column; align-items:flex-start; }
             .assign-featured-card { padding:22px 18px 20px; border-radius:18px; }
             .assign-feat-header { flex-direction:column; gap:14px; }
