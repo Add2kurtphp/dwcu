@@ -109,7 +109,9 @@
     transform: translateY(0);
 }
 
-/* ── Mobile: save button full-width ── */
+/* ── Mobile layout fixes ── */
 @media (max-width: 768px) {
+    .card-header { flex-direction: column; align-items: stretch; gap: 14px; }
     #saveSchoolInfo { width: 100%; justify-content: center; }
+    .sub-portal-text { font-size: 0.82rem; margin-bottom: 0; }
 }

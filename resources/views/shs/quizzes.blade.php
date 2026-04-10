@@ -345,14 +345,15 @@
         .finalize-btn:hover { background:linear-gradient(135deg,#162155,#1e2f7a); transform:translateY(-2px); box-shadow:0 8px 20px rgba(30,47,122,0.3); }
 
         @media (max-width:768px) {
-            body { overflow-x:hidden; overflow-y:auto; flex-direction:column; height:auto; min-height:100vh; }
             .sidebar { display:none; }
             .hamburger-btn { display:block; }
-            .content-area { width:100%; overflow-x:hidden; overflow-y:visible; }
-            .main-header { padding:12px 16px; position:sticky; top:0; z-index:100; }
-            .main-header h1 { font-size:1.05rem; }
+            .main-header { padding:12px 16px; position:sticky; top:0; z-index:100; display:flex; flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:nowrap; }
+            .main-header > div:first-child { display:flex; align-items:center; gap:10px; min-width:0; flex:1; }
+            .main-header h1 { font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+            .header-user { flex-shrink:0; padding:6px 10px; }
             .header-user span { display:none; }
-            .scroll-container { padding:16px; overflow-y:visible; }
+            .header-user i { font-size:1.4rem; }
+            .scroll-container { padding:14px; }
             .quiz-summary-bar { flex-direction:column; align-items:flex-start; }
             .quiz-featured-card { padding:22px 18px 20px; border-radius:18px; }
             .quiz-feat-header { flex-direction:column; gap:14px; }

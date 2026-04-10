@@ -26,6 +26,9 @@
             caret-color: white;
         }
 
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear { display: none; }
+
         .input-wrapper { transition: border-color 0.3s, background 0.3s; }
         .input-wrapper:focus-within {
             border-color: #ccff00 !important;

@@ -111,7 +111,7 @@ body, html {
     justify-content: space-between;
     align-items: center;
     padding: 25px 40px;
-    background: transparent;
+    background: #f0f2f5;
 }
 
 .user-quick-profile {
@@ -665,19 +665,22 @@ body, html {
    MOBILE MEDIA QUERY (≤ 768px)
    ============================================ */
 @media (max-width: 768px) {
-    body, html { overflow: auto; height: auto; }
-
-    .dashboard-wrapper { flex-direction: column; height: auto; min-height: 100vh; overflow: visible; }
+    /* Keep body/html locked — body-scroll breaks sticky. Scroll happens inside .main-viewport-content */
+    .dashboard-wrapper { flex-direction: column; }
 
     .sidebar-container { display: none; }
     .hamburger-btn { display: block; }
 
-    .main-viewport-content { margin-left: 0; width: 100%; height: auto; overflow-y: visible; box-sizing: border-box; }
+    /* Keep .main-viewport-content as the scroll container (overflow-y: auto, height: 100vh from base).
+       position: sticky on .top-nav-bar sticks within this scroll container. */
+    .main-viewport-content { margin-left: 0; width: 100%; }
 
-    .top-nav-bar { padding: 12px 15px; gap: 10px; }
-    .header-title h1 { font-size: 1.1rem; }
-    .header-title p { font-size: 0.8rem; }
+    .top-nav-bar { padding: 10px 14px; gap: 8px; position: sticky; top: 0; z-index: 100; background: #ffffff; border-bottom: 1px solid #e2e8f0; }
+    .header-title h1, .page-title { font-size: 1rem !important; }
+    .header-title p { display: none; }
+    .user-quick-profile { padding: 5px 8px; gap: 0; }
     .user-quick-profile .profile-info { display: none; }
+    .profile-icon-box, .profile-icon { width: 30px; height: 30px; font-size: 0.85rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 
     .stats-row { grid-template-columns: 1fr; gap: 15px; }
     .stats-row-4 { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0; }

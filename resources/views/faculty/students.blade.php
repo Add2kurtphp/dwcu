@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="{{ asset('css/admin-style.css') }}">
     @vite(['resources/css/app.css'])
     <style>
+        /* ── Fix logo centering ── */
+        .school-logo-img { display: block !important; margin: 0 auto !important; }
+
         /* ── Portal accent overrides ── */
         .portal-identity                           { color: #ccff00 !important; }
         .nav-link-item.active                      { background: #ccff00 !important; color: #0d1b44 !important; box-shadow: 0 4px 15px rgba(204,255,0,0.2) !important; border-left-color: #0d1b44 !important; }
@@ -265,6 +268,8 @@
             #sl-filter-panel.open { bottom: 0 !important; }
             .fp-close { display: block !important; }
             .input-row { grid-template-columns: 1fr; }
+            .modal-overlay { align-items: flex-end; }
+            .modal-card { padding: 20px 18px; max-height: 92vh; overflow-y: auto; border-radius: 20px 20px 0 0; width: 100%; }
         }
     </style>
 </head>
@@ -276,7 +281,7 @@
     <aside class="sidebar-container" id="sidebar">
         <div class="sidebar-top-branding">
             <img src="{{ asset('image/logo-transparent.png') }}" alt="DWCU Logo"
-                 class="school-logo-img" style="display:block;margin:0 auto 15px;">
+                 class="school-logo-img">
             <div class="school-title-text">DIVINE WORD COLLEGE <br> OF URDANETA</div>
             <div class="portal-identity">Faculty Portal</div>
         </div>

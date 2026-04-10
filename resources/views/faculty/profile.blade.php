@@ -13,6 +13,33 @@
         .portal-identity          { color: #ccff00 !important; }
         .nav-link-item.active     { background: #ccff00 !important; color: #0d1b44 !important; box-shadow: 0 4px 15px rgba(204,255,0,0.2) !important; border-left-color: #0d1b44 !important; }
         .mobile-nav-drawer .nav-item.active-drawer { background: #ccff00 !important; color: #0d1b44 !important; }
+
+        @media (max-width: 768px) {
+            #profileBanner {
+                padding: 18px 16px !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 16px !important;
+            }
+            #profileBanner > div:first-child {
+                gap: 14px !important;
+            }
+            #profileAvatar {
+                width: 54px !important;
+                height: 54px !important;
+                font-size: 1rem !important;
+                border-radius: 14px !important;
+            }
+            #profileBanner > div:last-child {
+                width: 100% !important;
+                gap: 8px !important;
+            }
+            #profileBanner > div:last-child > div {
+                min-width: 0 !important;
+                flex: 1 1 calc(50% - 4px) !important;
+                padding: 9px 12px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -74,7 +101,7 @@
                  PROFILE BANNER
                  ══════════════════════════════════════════ --}}
             <section class="management-section-card" style="padding:0;overflow:hidden;border-radius:20px;">
-                <div style="background:linear-gradient(135deg,#0d1b44,#1e2f7a);padding:28px 30px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+                <div id="profileBanner" style="background:linear-gradient(135deg,#0d1b44,#1e2f7a);padding:28px 30px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
 
                     {{-- Avatar + Name --}}
                     <div style="display:flex;align-items:center;gap:20px;">

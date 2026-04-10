@@ -17,6 +17,9 @@
         .orb { animation: admOrbFloat 9s ease-in-out infinite; }
 
         /* Override browser autofill white background */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear { display: none; }
+
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
         input:-webkit-autofill:focus {
