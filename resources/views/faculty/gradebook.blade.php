@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Gradebook | DWCU Faculty Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -190,6 +191,22 @@
         .assessment-row:hover { transform: translateY(-2px); border-color: #3f51b5; }
 
         .sync-status { display: flex; align-items: center; gap: 6px; color: #22c55e; font-size: 0.82rem; font-weight: 600; }
+
+        /* ── Report card grades editor ── */
+        .grades-editor-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
+        .grades-editor-table th {
+            background: #eef1fb; color: #1e2f7a; font-weight: 700; padding: 10px 12px;
+            text-align: center; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .grades-editor-table th:first-child { text-align: left; }
+        .grades-editor-table td { padding: 8px 12px; border-top: 1px solid #f0f2f8; text-align: center; }
+        .td-subject { text-align: left !important; font-weight: 600; color: #1e2f7a; font-size: 0.88rem; }
+        .td-final   { font-weight: 700; color: #1e2f7a; }
+        .grade-cell-input {
+            width: 55px; padding: 6px; text-align: center; border: 1.5px solid #dbe0ee;
+            border-radius: 6px; font-family: 'Afacad', sans-serif; font-size: 0.88rem;
+        }
+        .grade-cell-input:focus { outline: none; border-color: #1e2f7a; background: #f8f9ff; }
 
         /* ══════════════════════════════════════════
            MODAL SYSTEM
@@ -560,6 +577,38 @@
                             <span class="sync-status"><i class="fas fa-sync"></i> Auto-Synced</span>
                         </div>
                     </div>
+
+                    <div class="assessment-container">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <h3>Report Card Grades</h3>
+                            <button type="button" id="saveGradesBtn" class="primary-add-btn" onclick="saveStudentGrades()">
+                                <i class="fas fa-save"></i> Save Grades
+                            </button>
+                        </div>
+                        <p style="color:#64748b;font-size:0.82rem;margin:0 0 14px;">Editing feeds directly into this student's SF9/SF10 report forms.</p>
+                        <div style="overflow-x:auto;">
+                            <table class="grades-editor-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Q1</th>
+                                        <th>Q2</th>
+                                        <th>Q3</th>
+                                        <th>Q4</th>
+                                        <th>Final</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gradesTableBody">
+                                    <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px;">Select a student to view grades.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="assessment-container">
+                        <h3>My Quizzes</h3>
+                        <div id="myQuizzesList"><p style="color:#64748b;font-size:0.9rem;">Loading…</p></div>
+                    </div>
                 </div>{{-- /gradebook-content-area --}}
 
             </div>{{-- /gradebook-main-layout --}}
@@ -686,7 +735,7 @@
             </div>
             <div class="form-group">
                 <label>QUIZ TITLE</label>
-                <input type="text" placeholder="Chapter 1 Test">
+                <input type="text" id="quizTitle" placeholder="Chapter 1 Test">
             </div>
             <div id="questionList"></div>
             <button type="button" class="add-q-btn" onclick="addQuestion()">+ Add Question</button>
@@ -694,7 +743,7 @@
         <div class="modal-footer-fixed">
             <button type="button" class="btn-secondary" onclick="openSelectionModal()">Back</button>
             <button type="button" style="background:#64748b;color:white;border:none;padding:12px 22px;border-radius:10px;cursor:pointer;font-weight:700;font-family:'Afacad',sans-serif;" onclick="showQuizPreview()">Preview</button>
-            <button type="button" class="btn-primary">Create Quiz</button>
+            <button type="button" class="btn-primary" onclick="submitQuiz()">Create Quiz</button>
         </div>
     </div>
 </div>
@@ -908,6 +957,33 @@
     </div>
 </div>
 
+@php
+    $studentsJson = $students->map(function ($s) {
+        $grade = (int) preg_replace('/[^0-9]/', '', $s->grade_level ?? '0');
+        return [
+            'id'        => $s->id,
+            'studentId' => $s->student_id,
+            'name'      => $s->name,
+            'grade'     => $grade,
+            'section'   => $s->section ?? '',
+            'status'    => $s->status ?? 'active',
+        ];
+    })->values();
+@endphp
+<script type="application/json" id="students-data">{!! json_encode($studentsJson) !!}</script>
+<script>
+    window.STUDENTS = JSON.parse(document.getElementById('students-data').textContent);
+
+    window.quizRoutes = {
+        store:      "{{ route('faculty.quizzes.store') }}",
+        index:      "{{ route('faculty.quizzes.index') }}",
+        submissions: "{{ url('faculty/quizzes') }}", // + /{id}/submissions
+    };
+
+    window.gradeRoutes = {
+        base: "{{ url('faculty/students') }}", // + /{id}/grades
+    };
+</script>
 <script src="{{ asset('js/faculty-gradebook.js') }}"></script>
 </body>
 </html>

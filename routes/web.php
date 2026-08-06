@@ -11,10 +11,18 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Faculty\FacultyAuthController;
 use App\Http\Controllers\Faculty\FacultyProfileController;
+use App\Http\Controllers\Faculty\StudentController as FacultyStudentController;
+use App\Http\Controllers\Faculty\ReportFormController as FacultyReportFormController;
+use App\Http\Controllers\Faculty\GradebookController as FacultyGradebookController;
+use App\Http\Controllers\Faculty\GradeController as FacultyGradeController;
+use App\Http\Controllers\Faculty\QuizController as FacultyQuizController;
+use App\Http\Controllers\Faculty\SubmissionController as FacultySubmissionController;
 use App\Http\Controllers\JHS\JHSAuthController;
 use App\Http\Controllers\JHS\JHSProfileController;
+use App\Http\Controllers\JHS\QuizController as JHSQuizController;
 use App\Http\Controllers\SHS\SHSAuthController;
 use App\Http\Controllers\SHS\SHSProfileController;
+use App\Http\Controllers\SHS\QuizController as SHSQuizController;
 
 // Homepage
 Route::get('/', function () {
@@ -57,9 +65,9 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
         return view('jhs.assignments');
     })->name('assignments');
 
-    Route::get('/quizzes', function () {
-        return view('jhs.quizzes');
-    })->name('quizzes');
+    Route::get('/quizzes',              [JHSQuizController::class, 'index'])->name('quizzes');
+    Route::get('/quizzes/{quiz}',       [JHSQuizController::class, 'show'])->name('quizzes.take');
+    Route::post('/quizzes/{quiz}/submit', [JHSQuizController::class, 'submit'])->name('quizzes.submit');
 
     Route::get('/gradebook', function () {
         return view('jhs.gradebook');
@@ -91,7 +99,9 @@ Route::middleware('shs')->prefix('shs')->name('shs.')->group(function () {
 
     Route::get('/announcement', function () { return view('shs.announcement'); })->name('announcement');
     Route::get('/assignments',  function () { return view('shs.assignments'); })->name('assignments');
-    Route::get('/quizzes',      function () { return view('shs.quizzes'); })->name('quizzes');
+    Route::get('/quizzes',                [SHSQuizController::class, 'index'])->name('quizzes');
+    Route::get('/quizzes/{quiz}',         [SHSQuizController::class, 'show'])->name('quizzes.take');
+    Route::post('/quizzes/{quiz}/submit', [SHSQuizController::class, 'submit'])->name('quizzes.submit');
     Route::get('/gradebook',    function () { return view('shs.gradebook'); })->name('gradebook');
     Route::get('/calendar',     function () { return view('shs.calendar'); })->name('calendar');
     Route::get('/logs',         function () { return view('shs.logs'); })->name('logs');
@@ -114,19 +124,28 @@ Route::middleware('faculty')->prefix('faculty')->name('faculty.')->group(functio
     Route::patch('/profile/info',     [FacultyProfileController::class, 'updateInfo'])->name('profile.update');
     Route::patch('/profile/password', [FacultyProfileController::class, 'updatePassword'])->name('profile.password');
 
+    Route::get('/students', [FacultyStudentController::class, 'index'])->name('students');
+
+    Route::get('/students/{student}/sf9',  [FacultyReportFormController::class, 'sf9'])->name('students.sf9');
+    Route::get('/students/{student}/sf10', [FacultyReportFormController::class, 'sf10'])->name('students.sf10');
+
+    Route::get('/quizzes',                    [FacultyQuizController::class, 'index'])->name('quizzes.index');
+    Route::post('/quizzes',                   [FacultyQuizController::class, 'store'])->name('quizzes.store');
+    Route::get('/quizzes/{quiz}/submissions', [FacultySubmissionController::class, 'index'])->name('quizzes.submissions');
+
+    Route::get('/submissions/{submission}',        [FacultySubmissionController::class, 'show'])->name('submissions.show');
+    Route::post('/submissions/{submission}/grade', [FacultySubmissionController::class, 'grade'])->name('submissions.grade');
+
+    Route::get('/gradebook', [FacultyGradebookController::class, 'index'])->name('gradebook');
+
+    Route::get('/students/{student}/grades',   [FacultyGradeController::class, 'show'])->name('students.grades.show');
+    Route::patch('/students/{student}/grades', [FacultyGradeController::class, 'update'])->name('students.grades.update');
+
     // Placeholder routes for sidebar nav (pages to be built)
-    Route::get('/students', function () {
-        if (!session('faculty_id')) return redirect()->route('faculty.login');
-        return view('faculty.students');
-    })->name('students');
     Route::get('/calendar', function () {
         if (!session('faculty_id')) return redirect()->route('faculty.login');
         return view('faculty.calendar');
     })->name('calendar');
-    Route::get('/gradebook', function () {
-        if (!session('faculty_id')) return redirect()->route('faculty.login');
-        return view('faculty.gradebook');
-    })->name('gradebook');
     Route::get('/announcements', function () {
         if (!session('faculty_id')) return redirect()->route('faculty.login');
         return view('faculty.announcements');

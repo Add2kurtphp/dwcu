@@ -1,18 +1,5 @@
-// --- STUDENT DATA ---
-const STUDENTS = [
-  { id: '2024-0001', name: 'Jorez Romo',      grade: 12, section: 'Grade 12 - ICT',         chartData: [85, 92, 78, 95],  avg: '89.5', status: 'active'  },
-  { id: '2024-0015', name: 'Alexandra Cruz',   grade: 7,  section: 'Grade 7 - Explorers',    chartData: [90, 88, 92, 94],  avg: '91.0', status: 'active'  },
-  { id: '2024-0022', name: 'Michael Flores',   grade: 7,  section: 'Grade 7 - Explorers',    chartData: [75, 80, 70, 85],  avg: '77.5', status: 'active'  },
-  { id: '2024-0045', name: 'Mark Zuckerberg',  grade: 8,  section: 'Grade 8 - Researchers',  chartData: [98, 95, 99, 100], avg: '98.0', status: 'active'  },
-  { id: '2024-0052', name: 'Emma Hall',         grade: 9,  section: 'Grade 9 - Innovators',   chartData: [88, 82, 90, 85],  avg: '86.3', status: 'active'  },
-  { id: '2024-0068', name: 'Steven Santos',     grade: 10, section: 'Grade 10 - Leaders',     chartData: [80, 75, 85, 82],  avg: '80.5', status: 'active'  },
-  { id: '2024-0074', name: 'Jessica Reyes',     grade: 12, section: 'Grade 12 - STEM',        chartData: [92, 94, 88, 91],  avg: '91.2', status: 'active'  },
-  { id: '2024-0080', name: 'Carlos Mendoza',    grade: 11, section: 'Grade 11 - HUMSS',       chartData: [78, 82, 76, 80],  avg: '79.0', status: 'active'  },
-  { id: '2024-0091', name: 'Maria Santos',      grade: 8,  section: 'Grade 8 - Researchers',  chartData: [88, 90, 85, 92],  avg: '88.8', status: 'active'  },
-  { id: '2024-0102', name: 'Luis Garcia',       grade: 10, section: 'Grade 10 - Leaders',     chartData: [70, 75, 68, 72],  avg: '71.3', status: 'dropped' },
-  { id: '2024-0113', name: 'Anna Lim',          grade: 9,  section: 'Grade 9 - Innovators',   chartData: [95, 92, 98, 96],  avg: '95.3', status: 'active'  },
-  { id: '2024-0124', name: 'Pedro Cruz',        grade: 7,  section: 'Grade 7 - Explorers',    chartData: [60, 65, 58, 62],  avg: '61.3', status: 'active'  },
-];
+// --- STUDENT DATA (sourced from window.STUDENTS, set by Blade) ---
+const STUDENTS = window.STUDENTS ? window.STUDENTS.slice() : [];
 
 // --- TABLE STATE ---
 let perfChart;
@@ -28,7 +15,7 @@ function getFilteredSorted() {
   const q = document.getElementById('studentSearch').value.toLowerCase();
   let arr = STUDENTS.filter(s =>
     s.name.toLowerCase().includes(q) ||
-    s.id.includes(q) ||
+    s.studentId.toLowerCase().includes(q) ||
     s.section.toLowerCase().includes(q)
   );
   if (sortState.col) {
@@ -64,7 +51,7 @@ function renderTable() {
       : '<span class="status-dropped">Dropped</span>';
 
     tr.innerHTML = `
-      <td class="td-name">${student.name}<div class="td-sid">${student.id}</div></td>
+      <td class="td-name">${student.name}<div class="td-sid">${student.studentId}</div></td>
       <td class="td-grade">${student.grade}</td>
       <td>${badge}</td>
       <td onclick="event.stopPropagation()">
@@ -111,12 +98,71 @@ function selectStudentByIdx(idx) {
   const s = STUDENTS[idx];
   document.getElementById('display-name').innerText    = s.name;
   document.getElementById('display-section').innerText = s.section;
-  document.getElementById('display-avg').innerText     = s.avg;
+  renderTable();
+  loadStudentGrades(s.id);
+}
+
+// --- REPORT CARD GRADES (real backend) ---
+function loadStudentGrades(studentId) {
+  const body = document.getElementById('gradesTableBody');
+  if (body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px;">Loading…</td></tr>';
+
+  fetch(window.gradeRoutes.base + '/' + studentId + '/grades', { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json())
+    .then(data => renderGradesPanel(studentId, data))
+    .catch(() => { if (body) body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#dc2626;padding:20px;">Could not load grades.</td></tr>'; });
+}
+
+function renderGradesPanel(studentId, data) {
+  document.getElementById('display-avg').innerText = data.general_average !== null ? data.general_average : '—';
+
   if (perfChart) {
-    perfChart.data.datasets[0].data = s.chartData;
+    perfChart.data.datasets[0].data = data.quarter_averages.map(v => v === null ? 0 : v);
     perfChart.update();
   }
-  renderTable();
+
+  const body = document.getElementById('gradesTableBody');
+  if (!body) return;
+  body.innerHTML = data.subjects.map(subject => {
+    const row = data.grid[subject];
+    const cells = [1, 2, 3, 4].map(q => `
+      <td><input type="number" min="0" max="100" class="grade-cell-input"
+             data-subject="${subject}" data-quarter="${q}"
+             value="${row.quarters[q] ?? ''}"></td>`).join('');
+    return `<tr>
+      <td class="td-subject">${subject}</td>
+      ${cells}
+      <td class="td-final">${row.final ?? '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const saveBtn = document.getElementById('saveGradesBtn');
+  if (saveBtn) saveBtn.dataset.studentId = studentId;
+}
+
+function saveStudentGrades() {
+  const saveBtn   = document.getElementById('saveGradesBtn');
+  const studentId = saveBtn.dataset.studentId;
+  if (!studentId) return;
+
+  const grades = Array.from(document.querySelectorAll('.grade-cell-input')).map(input => ({
+    subject: input.dataset.subject,
+    quarter: parseInt(input.dataset.quarter),
+    grade:   input.value === '' ? null : parseInt(input.value),
+  }));
+
+  fetch(window.gradeRoutes.base + '/' + studentId + '/grades', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-CSRF-TOKEN': csrfToken(),
+    },
+    body: JSON.stringify({ grades }),
+  })
+    .then(r => { if (!r.ok) return r.json().then(e => Promise.reject(e)); return r.json(); })
+    .then(data => { renderGradesPanel(studentId, data); alert('Grades saved.'); })
+    .catch(() => alert('Error saving grades.'));
 }
 
 // --- ACTION DROPDOWN ---
@@ -151,7 +197,7 @@ function checkURLParameters() {
   const urlParams  = new URLSearchParams(window.location.search);
   const studentId  = urlParams.get('id');
   if (!studentId) return;
-  const idx = STUDENTS.findIndex(s => s.id === studentId || s.id.includes(studentId));
+  const idx = STUDENTS.findIndex(s => s.studentId === studentId || s.studentId.includes(studentId));
   if (idx !== -1) {
     const data = getFilteredSorted();
     const sortedIdx = data.findIndex(s => STUDENTS.indexOf(s) === idx);
@@ -389,6 +435,120 @@ function loadQuizDraft() {
   });
 }
 
+// --- QUIZ SUBMISSION (real backend) ---
+function csrfToken() {
+  const m = document.querySelector('meta[name="csrf-token"]');
+  return m ? m.content : '';
+}
+
+function collectQuizPayload() {
+  const title = document.getElementById('quizTitle').value.trim();
+  const gradeSection = document.querySelector('#gbDd-quiz .gb-dd-option.selected');
+  const subjectEl = document.getElementById('subj-quiz');
+  const subject = subjectEl.classList.contains('has-value')
+    ? subjectEl.querySelector('.subj-trigger-text').textContent.trim()
+    : '';
+
+  if (!title) { alert('Please enter a quiz title.'); return null; }
+  if (!gradeSection) { alert('Please select a grade & section.'); return null; }
+  if (!subject) { alert('Please select a subject.'); return null; }
+
+  const [gradeLevel, section] = gradeSection.dataset.value.split(' - ').map(s => s.trim());
+
+  const questions = [];
+  const cards = document.querySelectorAll('#questionList .q-card');
+  if (cards.length === 0) { alert('Add at least one question.'); return null; }
+
+  for (const card of cards) {
+    const questionText = card.querySelector('.q-input-main').value.trim();
+    const type = card.querySelector('.type-dropdown').value;
+    if (!questionText) { alert('Every question needs text.'); return null; }
+
+    if (type === 'multiple') {
+      const rows = Array.from(card.querySelectorAll('.mc-choice-row'));
+      const choices = rows.map(r => r.querySelector('input[type="text"]').value.trim());
+      const correctIdx = rows.findIndex(r => r.querySelector('input[type="radio"]').checked);
+      if (choices.some(c => !c)) { alert('Fill in all choices for "' + questionText + '".'); return null; }
+      if (correctIdx === -1) { alert('Mark the correct choice for "' + questionText + '".'); return null; }
+      questions.push({
+        question_text: questionText,
+        type: 'multiple_choice',
+        choices: choices,
+        correct_choice_index: correctIdx,
+      });
+    } else {
+      const answer = card.querySelector('.ans-input').value.trim();
+      if (!answer) { alert('Enter the correct answer for "' + questionText + '".'); return null; }
+      questions.push({
+        question_text: questionText,
+        type: 'short_answer',
+        correct_answer: answer,
+      });
+    }
+  }
+
+  return { title, subject, grade_level: gradeLevel, section, questions };
+}
+
+function submitQuiz() {
+  const payload = collectQuizPayload();
+  if (!payload) return;
+
+  fetch(window.quizRoutes.store, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-CSRF-TOKEN': csrfToken(),
+    },
+    body: JSON.stringify(payload),
+  })
+    .then(r => { if (!r.ok) return r.json().then(e => Promise.reject(e)); return r.json(); })
+    .then(() => {
+      alert('Quiz created successfully!');
+      localStorage.removeItem('dwcu_quiz_draft');
+      document.getElementById('quizTitle').value = '';
+      document.getElementById('questionList').innerHTML = '';
+      questionCount = 0;
+      closeAllModals();
+      loadMyQuizzes();
+    })
+    .catch(err => {
+      const msg = err && err.message ? err.message : 'Error creating quiz.';
+      alert(msg);
+    });
+}
+
+function loadMyQuizzes() {
+  const list = document.getElementById('myQuizzesList');
+  if (!list) return;
+
+  fetch(window.quizRoutes.index, { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+      const quizzes = data.quizzes || [];
+      if (quizzes.length === 0) {
+        list.innerHTML = '<p style="color:#64748b;font-size:0.9rem;">No quizzes created yet. Use "Add New Task" above to create one.</p>';
+        return;
+      }
+      list.innerHTML = quizzes.map(q => `
+        <div class="assessment-row">
+          <span>
+            <strong>${q.title}</strong> — ${q.subject}
+            <span style="color:#64748b;font-size:0.82rem;"> (${q.grade_level} - ${q.section})</span>
+          </span>
+          <span style="display:flex;align-items:center;gap:12px;">
+            <span class="sync-status" style="color:#1e2f7a;">${q.graded_count}/${q.submissions_count} graded</span>
+            <a href="${window.quizRoutes.submissions}/${q.id}/submissions"
+               style="background:#1e2f7a;color:white;padding:7px 14px;border-radius:8px;font-weight:600;font-size:0.82rem;text-decoration:none;font-family:'Afacad',sans-serif;">
+              Grade Submissions
+            </a>
+          </span>
+        </div>`).join('');
+    })
+    .catch(() => { list.innerHTML = '<p style="color:#dc2626;font-size:0.9rem;">Could not load quizzes.</p>'; });
+}
+
 // --- PREVIEW LOGIC ---
 function showQuizPreview() {
   const previewModal   = document.getElementById('previewModal');
@@ -455,8 +615,9 @@ window.onload = function () {
 
   // Table
   renderTable();
-  selectStudentByIdx(0);
+  if (STUDENTS.length > 0) selectStudentByIdx(0);
   checkURLParameters();
+  loadMyQuizzes();
 
   // Grade & Section custom dropdowns
   ['gbDd-google', 'gbDd-quiz', 'gbDd-assign'].forEach(id => {

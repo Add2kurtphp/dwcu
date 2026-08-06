@@ -20,16 +20,6 @@
         /* ── Management header ── */
         .mgmt-header     { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
         .mgmt-desc       { color: #64748b; font-size: 0.9rem; font-weight: 500; margin: 0; }
-        .btn-add-student {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, #1e2f7a, #0d1b44);
-            color: white; border: none; padding: 11px 22px;
-            border-radius: 12px; font-family: 'Afacad', sans-serif;
-            font-weight: 700; font-size: 0.9rem; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px rgba(30,47,122,0.25);
-        }
-        .btn-add-student:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,47,122,0.4); }
 
         /* ── Page layout ── */
         #sl-page-layout { display: flex; gap: 22px; align-items: flex-start; }
@@ -68,7 +58,6 @@
         .chip-dot                { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .dot-all                 { background: #cbd5e1; }
         .dot-active              { background: #22c55e; }
-        .dot-inactive            { background: #f59e0b; }
         .dot-dropped             { background: #ef4444; }
 
         /* ── Mobile filter toggle ── */
@@ -131,18 +120,15 @@
         .email-cell     { text-decoration: none; color: #1e2f7a; font-weight: 600; }
         .email-cell:hover { text-decoration: underline; }
         .badge-active   { display:inline-block; padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.78rem; background:#dcfce7; color:#15803d; }
-        .badge-inactive { display:inline-block; padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.78rem; background:#fff3cd; color:#92640a; }
         .badge-dropped  { display:inline-block; padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.78rem; background:#fde8ec; color:#c0152f; }
-        .btn-edit, .btn-delete {
-            border:none; cursor:pointer; font-weight:600; font-size:0.78rem;
-            transition:background 0.2s; padding:5px 11px; border-radius:7px;
-            display:inline-flex; align-items:center; gap:4px;
-            font-family:'Afacad', sans-serif;
+
+        .action-trigger-btn {
+            background:#eef1fb; color:#1e2f7a; border:none; cursor:pointer;
+            font-weight:600; font-size:0.78rem; padding:7px 13px; border-radius:7px;
+            display:inline-flex; align-items:center; gap:6px;
+            font-family:'Afacad', sans-serif; transition:background 0.2s;
         }
-        .btn-edit   { background:#eef1fb; color:#1e2f7a; }
-        .btn-delete { background:#fde8ec; color:#c0152f; }
-        .btn-edit:hover   { background:#dde3f5; }
-        .btn-delete:hover { background:#fbd0d8; }
+        .action-trigger-btn:hover { background:#dde3f5; }
 
         /* ── Pagination ── */
         .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
@@ -156,12 +142,12 @@
         .page-nav-btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
         .page-lbl { font-weight: 700; color: #1e2f7a; font-family: 'Afacad', sans-serif; font-size: 0.95rem; }
 
-        /* ── Edit dropdown (JS-generated) ── */
-        .sl-edit-dropdown {
+        /* ── Report dropdown (JS-generated) ── */
+        .sl-report-dropdown {
             position: fixed; background: white;
             border: 1.5px solid #e2e8f0; border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 9999;
-            min-width: 178px; padding: 6px;
+            min-width: 190px; padding: 6px;
             animation: dropIn 0.15s ease;
         }
         @keyframes dropIn {
@@ -175,87 +161,12 @@
             font-family: 'Afacad', sans-serif; font-size: 0.875rem; font-weight: 600;
             border-radius: 8px; transition: background 0.15s, color 0.15s; color: #334155;
         }
-        .sl-drop-item i        { width: 16px; text-align: center; font-size: 0.8rem; }
-        .sl-drop-edit:hover    { background: #eef1fb; color: #1e2f7a; }
-        .sl-drop-dropped:hover { background: #fff1f2; color: #e11d48; }
-
-        /* ── Modal ── */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(13,27,68,0.6); backdrop-filter: blur(5px);
-            z-index: 2000; align-items: center; justify-content: center;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal-card {
-            background: white; width: 95%; max-width: 520px;
-            padding: 32px; border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            transform: translateY(-20px); transition: transform 0.3s ease;
-        }
-        .modal-overlay.show .modal-card { transform: translateY(0); }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1.5px solid #e0e4f0;
-        }
-        .modal-header h3  { color: #0d1b44; margin: 0; font-size: 1.05rem; font-weight: 800; }
-        .close-x { background: none; border: none; font-size: 1.8rem; color: #8892b0; cursor: pointer; line-height: 1; transition: color 0.2s; }
-        .close-x:hover { color: #0d1b44; }
-        .input-group { margin-bottom: 16px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 5px; font-size: 0.82rem; font-weight: 700; color: #2d3a5e; }
-        .input-group input,
-        .input-group select {
-            width: 100%; padding: 11px 14px; border: 1.5px solid #e0e4f0;
-            border-radius: 10px; font-family: 'Afacad', sans-serif; font-size: 0.9rem;
-            color: #0d1b44; background: #fafbff; outline: none; box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-        }
-        .input-group input:focus,
-        .input-group select:focus { border-color: #1e2f7a; background: white; box-shadow: 0 0 0 3px rgba(30,47,122,0.1); }
-        .input-group select {
-            -webkit-appearance: none; appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231e2f7a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 12px center; background-size: 12px;
-            padding-right: 34px; cursor: pointer;
-        }
-        .input-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .strand-hints { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-        .strand-hint { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; cursor: pointer; transition: opacity 0.15s; }
-        .strand-hint:hover { opacity: 0.75; }
-        .sh-stem { background: #dbeafe; color: #1d4ed8; }
-        .sh-ict  { background: #dcfce7; color: #15803d; }
-        .sh-hum  { background: #fce7f3; color: #be185d; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
-        .btn-secondary {
-            background: #f1f5f9; border: none; padding: 10px 22px;
-            border-radius: 10px; cursor: pointer; font-weight: 600;
-            font-family: 'Afacad', sans-serif; color: #475569; transition: background 0.2s;
-        }
-        .btn-secondary:hover { background: #e2e8f0; }
-        .btn-primary {
-            background: linear-gradient(135deg, #1e2f7a, #0d1b44);
-            color: white; border: none; padding: 10px 22px;
-            border-radius: 10px; cursor: pointer; font-weight: 700;
-            font-family: 'Afacad', sans-serif; transition: opacity 0.2s;
-        }
-        .btn-primary:hover { opacity: 0.9; }
-
-        /* ── Toast ── */
-        .toast {
-            position: fixed; top: 30px; right: 30px;
-            background: #16a34a; color: white; padding: 14px 24px;
-            border-radius: 12px; display: none; align-items: center; gap: 10px;
-            font-weight: 600; font-size: 0.95rem; font-family: 'Afacad', sans-serif;
-            box-shadow: 0 8px 25px rgba(22,163,74,0.3); z-index: 3000;
-            transform: translateX(0);
-            transition: opacity 0.3s ease;
-            opacity: 0;
-        }
-        .toast.active { display: flex; opacity: 1; }
+        .sl-drop-item i { width: 16px; text-align: center; font-size: 0.8rem; }
+        .sl-drop-item:hover { background: #eef1fb; color: #1e2f7a; }
 
         /* ── Mobile responsive ── */
         @media (max-width: 768px) {
             .mgmt-header { flex-direction: column; align-items: flex-start; }
-            .btn-add-student { width: 100%; justify-content: center; }
             .mobile-filter-row { display: flex; }
             #sl-page-layout { display: block !important; }
             #sl-filter-panel {
@@ -267,9 +178,6 @@
             }
             #sl-filter-panel.open { bottom: 0 !important; }
             .fp-close { display: block !important; }
-            .input-row { grid-template-columns: 1fr; }
-            .modal-overlay { align-items: flex-end; }
-            .modal-card { padding: 20px 18px; max-height: 92vh; overflow-y: auto; border-radius: 20px 20px 0 0; width: 100%; }
         }
     </style>
 </head>
@@ -331,10 +239,7 @@
 
             {{-- ── Management header ── --}}
             <div class="mgmt-header">
-                <p class="mgmt-desc">Manage student accounts and monitor their academic progress.</p>
-                <button class="btn-add-student" id="openModalBtn">
-                    <i class="fas fa-plus"></i> Add Student
-                </button>
+                <p class="mgmt-desc">View enrolled students and generate their SF9 / SF10 report forms.</p>
             </div>
 
             {{-- ── Page Layout: Filter Panel + Table ── --}}
@@ -368,16 +273,13 @@
                     {{-- Status Filter --}}
                     <div class="fp-group">
                         <p class="fp-label"><i class="fas fa-circle-dot"></i> Status</p>
-                        <button class="filter-chip active" id="chip-status-all"      onclick="setStatusFilter(null)">
+                        <button class="filter-chip active" id="chip-status-all"     onclick="setStatusFilter(null)">
                             <span class="chip-dot dot-all"></span> All Status
                         </button>
-                        <button class="filter-chip" id="chip-status-active"   onclick="setStatusFilter('active')">
+                        <button class="filter-chip" id="chip-status-active"  onclick="setStatusFilter('active')">
                             <span class="chip-dot dot-active"></span> Active
                         </button>
-                        <button class="filter-chip" id="chip-status-inactive" onclick="setStatusFilter('inactive')">
-                            <span class="chip-dot dot-inactive"></span> Inactive
-                        </button>
-                        <button class="filter-chip" id="chip-status-dropped"  onclick="setStatusFilter('dropped')">
+                        <button class="filter-chip" id="chip-status-dropped" onclick="setStatusFilter('dropped')">
                             <span class="chip-dot dot-dropped"></span> Dropped
                         </button>
                     </div>
@@ -432,79 +334,8 @@
     </main>
 </div>
 
-{{-- ── Add / Edit Student Modal ── --}}
-<div class="modal-overlay" id="addStudentModal">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3 id="modalTitle"><i class="fas fa-user-plus"></i> Add New Student</h3>
-            <button class="close-x" id="closeModalX">&times;</button>
-        </div>
-        <form id="studentForm">
-            <div class="input-group">
-                <label>ID Number</label>
-                <input type="text" id="formId" placeholder="e.g., 2024-XXXX" required>
-            </div>
-            <div class="input-group">
-                <label>Student Full Name</label>
-                <input type="text" id="formName" placeholder="Enter name..." required>
-            </div>
-            <div class="input-group">
-                <label>Institutional Email</label>
-                <input type="email" id="formEmail" placeholder="name@dwcu.edu.ph" required>
-            </div>
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Grade Level</label>
-                    <select id="formGradeLevel" onchange="updateStrandField()">
-                        <optgroup label="Junior High School">
-                            <option value="7">Grade 7</option>
-                            <option value="8">Grade 8</option>
-                            <option value="9">Grade 9</option>
-                            <option value="10">Grade 10</option>
-                        </optgroup>
-                        <optgroup label="Senior High School">
-                            <option value="11">Grade 11</option>
-                            <option value="12">Grade 12</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <div class="input-group" id="strandFieldGroup" style="display:none;">
-                    <label>Strand</label>
-                    <select id="formStrand">
-                        <option value="STEM">STEM</option>
-                        <option value="ICT">ICT</option>
-                        <option value="HUMSS">HUMSS</option>
-                    </select>
-                    <div class="strand-hints">
-                        <span class="strand-hint sh-stem" onclick="document.getElementById('formStrand').value='STEM'">STEM</span>
-                        <span class="strand-hint sh-ict"  onclick="document.getElementById('formStrand').value='ICT'">ICT</span>
-                        <span class="strand-hint sh-hum"  onclick="document.getElementById('formStrand').value='HUMSS'">HUMSS</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Account Status</label>
-                    <select id="formStatus">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" id="cancelModalBtn">Cancel</button>
-                <button type="submit" class="btn-primary" id="submitBtn">Confirm Add</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 {{-- Filter panel overlay (mobile) --}}
 <div id="sl-filter-overlay"></div>
-
-{{-- Toast notification --}}
-<div class="toast" id="toastNotif">
-    <i class="fas fa-check-circle"></i>
-    <span id="toastMsg">Done!</span>
-</div>
 
 {{-- ── Mobile nav overlay + drawer ── --}}
 <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
@@ -534,31 +365,35 @@
     </div>
 </div>
 
+@php
+    $studentsJson = $students->map(function ($s) {
+        $grade = (int) preg_replace('/[^0-9]/', '', $s->grade_level ?? '0');
+        return [
+            'id'        => $s->id,
+            'studentId' => $s->student_id,
+            'name'      => $s->name,
+            'email'     => $s->email ?? '',
+            'grade'     => $grade,
+            'section'   => $s->section ?? '',
+            'status'    => $s->status ?? 'active',
+        ];
+    })->values();
+@endphp
+<script type="application/json" id="students-data">{!! json_encode($studentsJson) !!}</script>
 <script>
-// ── Student data ────────────────────────────────────────────────
-const STUDENTS = [
-    { id: '2024-0001', name: 'Jorez Romo',       email: 'romo.j@dwcu.edu.ph',    section: 'Grade 12 - ICT',        grade: 12, status: 'active'  },
-    { id: '2024-0015', name: 'Alexandra Cruz',    email: 'cruz.a@dwcu.edu.ph',    section: 'Grade 7 - Explorers',   grade: 7,  status: 'active'  },
-    { id: '2024-0022', name: 'Michael Flores',    email: 'flores.m@dwcu.edu.ph',  section: 'Grade 7 - Explorers',   grade: 7,  status: 'active'  },
-    { id: '2024-0045', name: 'Mark Zuckerberg',   email: 'zuck.m@dwcu.edu.ph',    section: 'Grade 8 - Researchers', grade: 8,  status: 'active'  },
-    { id: '2024-0052', name: 'Emma Hall',          email: 'hall.e@dwcu.edu.ph',    section: 'Grade 9 - Innovators',  grade: 9,  status: 'active'  },
-    { id: '2024-0068', name: 'Steven Santos',      email: 'santos.s@dwcu.edu.ph',  section: 'Grade 10 - Leaders',    grade: 10, status: 'active'  },
-    { id: '2024-0074', name: 'Jessica Reyes',      email: 'reyes.j@dwcu.edu.ph',   section: 'Grade 12 - STEM',       grade: 12, status: 'active'  },
-    { id: '2024-0080', name: 'Carlos Mendoza',     email: 'mendoza.c@dwcu.edu.ph', section: 'Grade 11 - HUMSS',      grade: 11, status: 'active'  },
-    { id: '2024-0091', name: 'Maria Santos',       email: 'santos.m@dwcu.edu.ph',  section: 'Grade 8 - Researchers', grade: 8,  status: 'active'  },
-    { id: '2024-0102', name: 'Luis Garcia',        email: 'garcia.l@dwcu.edu.ph',  section: 'Grade 10 - Leaders',    grade: 10, status: 'dropped' },
-    { id: '2024-0113', name: 'Anna Lim',           email: 'lim.a@dwcu.edu.ph',     section: 'Grade 9 - Innovators',  grade: 9,  status: 'active'  },
-    { id: '2024-0124', name: 'Pedro Cruz',         email: 'cruz.p@dwcu.edu.ph',    section: 'Grade 7 - Explorers',   grade: 7,  status: 'active'  },
-];
+window.reportRoutes = {
+    base: "{{ url('faculty/students') }}",
+};
+
+const STUDENTS = JSON.parse(document.getElementById('students-data').textContent);
 
 // ── State ──────────────────────────────────────────────────────
 function getRowsPerPage() { return window.innerWidth <= 768 ? 5 : 10; }
-let currentPage = 1;
-let editingId   = null;
-let openDropId  = null;
-let filterState = { grade: null, status: null };
+let currentPage   = 1;
+let openDropId    = null;
+let filterState   = { grade: null, status: null };
 
-const STATUS_CLASSES = { active: 'badge-active', inactive: 'badge-inactive', dropped: 'badge-dropped' };
+const STATUS_CLASSES = { active: 'badge-active', dropped: 'badge-dropped' };
 
 // ── Filter badge ───────────────────────────────────────────────
 function updateFilterBadge() {
@@ -585,7 +420,7 @@ function setStatusFilter(status) {
 function getFiltered() {
     const q = document.getElementById('tableSearch').value.toLowerCase();
     return STUDENTS.filter(s =>
-        (s.name.toLowerCase().includes(q) || s.id.includes(q) ||
+        (s.studentId.toLowerCase().includes(q) || s.name.toLowerCase().includes(q) ||
          s.email.toLowerCase().includes(q) || s.section.toLowerCase().includes(q)) &&
         (filterState.grade  === null || s.grade  === filterState.grade) &&
         (filterState.status === null || s.status === filterState.status)
@@ -593,7 +428,7 @@ function getFiltered() {
 }
 
 function renderTable() {
-    closeEditDropdown();
+    closeReportDropdown();
     const data       = getFiltered();
     const totalPages = Math.max(1, Math.ceil(data.length / getRowsPerPage()));
     if (currentPage > totalPages) currentPage = totalPages;
@@ -610,20 +445,15 @@ function renderTable() {
             const badge = STATUS_CLASSES[s.status] || STATUS_CLASSES.active;
             const tr    = document.createElement('tr');
             tr.innerHTML = `
-                <td class="td-cell">${s.id}</td>
+                <td class="td-cell">${s.studentId}</td>
                 <td class="td-cell">${s.name}</td>
                 <td class="td-cell"><a href="mailto:${s.email}" class="email-cell">${s.email}</a></td>
-                <td class="td-cell">${s.section}</td>
+                <td class="td-cell">Grade ${s.grade}${s.section ? ' – ' + s.section : ''}</td>
                 <td class="td-cell"><span class="${badge}">${label}</span></td>
                 <td class="td-cell">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <button onclick="toggleEditDropdown(event,'${s.id}')" class="edit-action btn-edit">
-                            <i class="fas fa-pen"></i> Edit <i class="fas fa-chevron-down" style="font-size:0.6rem;margin-left:2px;"></i>
-                        </button>
-                        <button onclick="deleteStudent('${s.id}')" class="btn-delete">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
+                    <button class="action-trigger-btn" onclick="toggleReportDropdown(event,${s.id})">
+                        <i class="fas fa-file-export"></i> Reports <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i>
+                    </button>
                 </td>`;
             tbody.appendChild(tr);
         });
@@ -641,102 +471,34 @@ function changePage(dir) {
     renderTable();
 }
 
-// ── Edit dropdown ──────────────────────────────────────────────
-function toggleEditDropdown(event, sid) {
+// ── Report dropdown ─────────────────────────────────────────────
+function toggleReportDropdown(event, sid) {
     event.stopPropagation();
-    const existing = document.getElementById('slEditDropdown');
-    if (existing && openDropId === sid) { closeEditDropdown(); return; }
-    closeEditDropdown();
+    if (openDropId === sid) { closeReportDropdown(); return; }
+    closeReportDropdown();
     openDropId = sid;
 
     const rect = event.currentTarget.getBoundingClientRect();
     const dd   = document.createElement('div');
-    dd.id        = 'slEditDropdown';
-    dd.className = 'sl-edit-dropdown';
+    dd.id        = 'slReportDropdown';
+    dd.className = 'sl-report-dropdown';
     dd.style.top  = (rect.bottom + 4) + 'px';
     dd.style.left = rect.left + 'px';
     dd.innerHTML  = `
-        <button class="sl-drop-item sl-drop-edit"    onclick="openEditModal('${sid}')"><i class="fas fa-pen"></i> Edit Details</button>
-        <button class="sl-drop-item sl-drop-dropped" onclick="markAsDropped('${sid}')"><i class="fas fa-user-slash"></i> Mark as Dropped</button>`;
+        <button class="sl-drop-item" onclick="generateReport(${sid},'sf9')"><i class="fas fa-file-lines"></i> Generate SF9</button>
+        <button class="sl-drop-item" onclick="generateReport(${sid},'sf10')"><i class="fas fa-file-contract"></i> Generate SF10</button>`;
     document.body.appendChild(dd);
 }
 
-function closeEditDropdown() {
-    const dd = document.getElementById('slEditDropdown');
+function closeReportDropdown() {
+    const dd = document.getElementById('slReportDropdown');
     if (dd) dd.remove();
     openDropId = null;
 }
 
-function markAsDropped(sid) {
-    const s = STUDENTS.find(s => s.id === sid);
-    if (s) s.status = 'dropped';
-    closeEditDropdown(); renderTable(); showToast('Student marked as dropped.');
-}
-
-function deleteStudent(sid) {
-    if (!confirm('Are you sure you want to remove this student?')) return;
-    const idx = STUDENTS.findIndex(s => s.id === sid);
-    if (idx !== -1) { STUDENTS.splice(idx, 1); renderTable(); showToast('Student removed.'); }
-}
-
-// ── Modal ──────────────────────────────────────────────────────
-function openEditModal(sid) {
-    closeEditDropdown();
-    const s = STUDENTS.find(s => s.id === sid);
-    if (!s) return;
-    editingId = sid;
-    document.getElementById('modalTitle').innerHTML = `<i class="fas fa-pen"></i> Edit Student Details`;
-    document.getElementById('submitBtn').innerText  = 'Save Changes';
-    document.getElementById('formId').value    = s.id;
-    document.getElementById('formId').readOnly = true;
-    document.getElementById('formName').value  = s.name;
-    document.getElementById('formEmail').value = s.email;
-    document.getElementById('formStatus').value = s.status === 'dropped' ? 'active' : s.status;
-    const m = s.section.match(/Grade\s+(\d+)\s*-\s*(.+)/i);
-    const gradeNum = m ? m[1] : '7';
-    document.getElementById('formGradeLevel').value = gradeNum;
-    updateStrandField();
-    if (parseInt(gradeNum) >= 11 && m) document.getElementById('formStrand').value = m[2].trim();
-    showModal();
-}
-
-function showModal() {
-    const modal = document.getElementById('addStudentModal');
-    modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('show'), 10);
-}
-
-function closeModal() {
-    const modal = document.getElementById('addStudentModal');
-    modal.classList.remove('show');
-    setTimeout(() => {
-        modal.style.display = 'none';
-        document.getElementById('studentForm').reset();
-        document.getElementById('formId').readOnly = false;
-        document.getElementById('modalTitle').innerHTML = `<i class="fas fa-user-plus"></i> Add New Student`;
-        document.getElementById('submitBtn').innerText  = 'Confirm Add';
-        editingId = null;
-    }, 300);
-}
-
-const JHS_SECTIONS = { 7: 'Explorers', 8: 'Researchers', 9: 'Innovators', 10: 'Leaders' };
-function buildSection() {
-    const grade = parseInt(document.getElementById('formGradeLevel').value);
-    if (grade <= 10) return `Grade ${grade} - ${JHS_SECTIONS[grade]}`;
-    return `Grade ${grade} - ${document.getElementById('formStrand').value}`;
-}
-
-function updateStrandField() {
-    const grade = parseInt(document.getElementById('formGradeLevel').value);
-    document.getElementById('strandFieldGroup').style.display = grade >= 11 ? '' : 'none';
-}
-
-// ── Toast ──────────────────────────────────────────────────────
-function showToast(msg) {
-    const toast = document.getElementById('toastNotif');
-    document.getElementById('toastMsg').textContent = msg;
-    toast.classList.add('active');
-    setTimeout(() => toast.classList.remove('active'), 3000);
+function generateReport(sid, type) {
+    closeReportDropdown();
+    window.open(window.reportRoutes.base + '/' + sid + '/' + type, '_blank');
 }
 
 // ── Init ───────────────────────────────────────────────────────
@@ -767,49 +529,10 @@ document.addEventListener('DOMContentLoaded', function () {
     renderTable();
     window.addEventListener('resize', () => { currentPage = 1; renderTable(); });
 
-    // Open Add modal
-    document.getElementById('openModalBtn').onclick = () => {
-        editingId = null;
-        document.getElementById('studentForm').reset();
-        document.getElementById('formId').readOnly = false;
-        document.getElementById('modalTitle').innerHTML = `<i class="fas fa-user-plus"></i> Add New Student`;
-        document.getElementById('submitBtn').innerText  = 'Confirm Add';
-        updateStrandField();
-        showModal();
-    };
-
-    document.getElementById('closeModalX').onclick    = closeModal;
-    document.getElementById('cancelModalBtn').onclick = closeModal;
-    document.getElementById('addStudentModal').addEventListener('click', e => {
-        if (e.target === document.getElementById('addStudentModal')) closeModal();
-    });
-
     document.addEventListener('click', e => {
-        if (!e.target.closest('.edit-action') && !e.target.closest('#slEditDropdown')) closeEditDropdown();
+        if (!e.target.closest('.action-trigger-btn') && !e.target.closest('#slReportDropdown')) closeReportDropdown();
     });
-    window.addEventListener('scroll', closeEditDropdown, true);
-
-    document.getElementById('studentForm').onsubmit = e => {
-        e.preventDefault();
-        const id      = document.getElementById('formId').value.trim();
-        const name    = document.getElementById('formName').value.trim();
-        const email   = document.getElementById('formEmail').value.trim();
-        const section = buildSection();
-        const status  = document.getElementById('formStatus').value;
-        const m       = section.match(/Grade\s+(\d+)/i);
-        const grade   = m ? parseInt(m[1]) : 0;
-
-        if (editingId) {
-            const s = STUDENTS.find(s => s.id === editingId);
-            if (s) { s.name = name; s.email = email; s.section = section; s.grade = grade; s.status = status; }
-            showToast('Student updated successfully.');
-        } else {
-            if (STUDENTS.find(s => s.id === id)) { alert('A student with this ID already exists.'); return; }
-            STUDENTS.push({ id, name, email, section, grade, status });
-            showToast('Student added successfully.');
-        }
-        closeModal(); renderTable();
-    };
+    window.addEventListener('scroll', closeReportDropdown, true);
 });
 </script>
 
