@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SHS;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Quiz;
 use App\Models\Student;
 use App\Models\Submission;
@@ -86,6 +87,8 @@ class QuizController extends Controller
                 ]);
             }
         }
+
+        AuditLog::record($student->name, "Submitted quiz: {$quiz->title}", 'shs', 'Academic', $quiz->subject);
 
         return redirect()->route('shs.quizzes')->with('success', 'Quiz submitted! Your teacher will finalize your grade.');
     }

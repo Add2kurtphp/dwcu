@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use App\Models\Faculty;
 use App\Models\Quiz;
 use App\Models\Student;
 use App\Models\Submission;
@@ -57,6 +59,17 @@ class SubmissionController extends Controller
             'graded_at'   => now(),
             'graded_by'   => session('faculty_id'),
         ]);
+
+        $faculty = Faculty::find(session('faculty_id'));
+        if ($faculty) {
+            AuditLog::record(
+                $faculty->name,
+                "Posted quiz score — {$submission->quiz->title} ({$submission->student->name}: {$total}/{$submission->total_possible})",
+                'faculty',
+                'Grade',
+                "{$submission->quiz->grade_level} - {$submission->quiz->section}"
+            );
+        }
 
         return redirect()
             ->route('faculty.quizzes.submissions', $submission->quiz_id)

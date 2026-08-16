@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\JHS;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -36,11 +37,18 @@ class JHSAuthController extends Controller
             Session::put('jhs_remember', true);
         }
 
+        AuditLog::record($student->name, 'Logged in to the JHS Portal', 'jhs', 'Login');
+
         return redirect()->route('jhs.dashboard');
     }
 
     public function logout(Request $request)
     {
+        $name = session('jhs_student_name');
+        if ($name) {
+            AuditLog::record($name, 'Logged out of the JHS Portal', 'jhs', 'Logout');
+        }
+
         Session::forget(['jhs_student_id', 'jhs_student_name', 'jhs_remember']);
         $request->session()->regenerate();
 

@@ -359,11 +359,16 @@
 
     <div class="scroll-container">
 
+        @php
+            $shsLoginCount = $logs->where('action_type', 'Auth')->where('action', 'like', 'Logged in%')->count();
+            $shsQuizCount  = $logs->where('action_type', 'Academic')->count();
+            $shsLastActive = $logs->first()?->created_at?->format('M j') ?? '—';
+        @endphp
         <!-- Summary bar -->
         <div class="logs-summary-bar">
             <div class="logs-summary-left">
                 <i class="fas fa-shield-alt"></i>
-                <span><strong>19</strong> activity records &mdash; March 2026</span>
+                <span><strong>{{ $logs->count() }}</strong> activity record{{ $logs->count() === 1 ? '' : 's' }}</span>
             </div>
             <div class="logs-summary-right">
                 <span class="logs-tag tag-private"><i class="fas fa-lock"></i> Private Log</span>
@@ -376,28 +381,28 @@
             <div class="log-stat-card stat-login">
                 <div class="log-stat-icon"><i class="fas fa-sign-in-alt"></i></div>
                 <div class="log-stat-body">
-                    <span class="log-stat-value">3</span>
+                    <span class="log-stat-value">{{ $shsLoginCount }}</span>
                     <span class="log-stat-label">Total Logins</span>
                 </div>
             </div>
             <div class="log-stat-card stat-quiz">
                 <div class="log-stat-icon"><i class="fas fa-edit"></i></div>
                 <div class="log-stat-body">
-                    <span class="log-stat-value">3</span>
+                    <span class="log-stat-value">{{ $shsQuizCount }}</span>
                     <span class="log-stat-label">Quizzes Taken</span>
                 </div>
             </div>
             <div class="log-stat-card stat-asst">
                 <div class="log-stat-icon"><i class="fas fa-tasks"></i></div>
                 <div class="log-stat-body">
-                    <span class="log-stat-value">4</span>
+                    <span class="log-stat-value">0</span>
                     <span class="log-stat-label">Submitted Work</span>
                 </div>
             </div>
             <div class="log-stat-card stat-recent">
                 <div class="log-stat-icon"><i class="fas fa-clock"></i></div>
                 <div class="log-stat-body">
-                    <span class="log-stat-value">Mar 15</span>
+                    <span class="log-stat-value">{{ $shsLastActive }}</span>
                     <span class="log-stat-label">Last Active</span>
                 </div>
             </div>
@@ -500,29 +505,20 @@
     </div>
 </div>
 
+@php
+    $shsLogsJson = $logs->map(fn ($l) => [
+        'date'        => $l->created_at->format('Y-m-d'),
+        'time'        => $l->created_at->format('H:i:s'),
+        'category'    => $l->action_type,
+        'description' => $l->action,
+        'status'      => 'Success',
+        'subject'     => $l->module ?: 'General',
+    ])->values();
+@endphp
+<script type="application/json" id="shs-logs-data">{!! json_encode($shsLogsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
 <script>
-    // ─── Data Store ───────────────────────────────────────────────────────────
-    const shsLogsData = [
-        { date: '2026-03-15', time: '07:31:08', category: 'Auth',     description: 'Logged in to the SHS Portal',                        status: 'Success',     subject: 'General'  },
-        { date: '2026-03-15', time: '07:34:50', category: 'Academic', description: 'Opened assignment: Capstone Research Proposal',       status: 'Info',        subject: 'Research'  },
-        { date: '2026-03-15', time: '07:58:22', category: 'Academic', description: 'Submitted Capstone Research assignment',              status: 'Success',     subject: 'Research'  },
-        { date: '2026-03-15', time: '08:05:11', category: 'Academic', description: 'Started quiz: Physics — Kinematics & Dynamics',       status: 'In Progress', subject: 'Physics'   },
-        { date: '2026-03-15', time: '08:24:39', category: 'Academic', description: 'Submitted Physics quiz — Score: 2 / 2',               status: 'Success',     subject: 'Physics'   },
-        { date: '2026-03-15', time: '08:26:01', category: 'Auth',     description: 'Logged out of the SHS Portal',                        status: 'Info',        subject: 'General'  },
-        { date: '2026-03-14', time: '13:10:44', category: 'Auth',     description: 'Logged in to the SHS Portal',                        status: 'Success',     subject: 'General'  },
-        { date: '2026-03-14', time: '13:15:30', category: 'Academic', description: 'Viewed quiz list for Calculus',                       status: 'Info',        subject: 'Calculus'  },
-        { date: '2026-03-14', time: '13:22:05', category: 'Academic', description: 'Started quiz: Calculus — Limits and Continuity',      status: 'In Progress', subject: 'Calculus'  },
-        { date: '2026-03-14', time: '13:52:18', category: 'Academic', description: 'Submitted Calculus quiz — Score: 1 / 2',              status: 'Success',     subject: 'Calculus'  },
-        { date: '2026-03-14', time: '14:00:55', category: 'Academic', description: 'Submitted General Physics 2 assignment',              status: 'Success',     subject: 'Physics'   },
-        { date: '2026-03-14', time: '14:03:30', category: 'Auth',     description: 'Logged out of the SHS Portal',                        status: 'Info',        subject: 'General'  },
-        { date: '2026-03-13', time: '09:00:17', category: 'Auth',     description: 'Logged in to the SHS Portal',                        status: 'Success',     subject: 'General'  },
-        { date: '2026-03-13', time: '09:04:42', category: 'Academic', description: 'Opened assignment: General Biology 2 digital poster', status: 'Info',        subject: 'Biology'   },
-        { date: '2026-03-13', time: '09:45:29', category: 'Academic', description: 'Submitted General Biology 2 assignment',              status: 'Success',     subject: 'Biology'   },
-        { date: '2026-03-13', time: '09:47:01', category: 'Academic', description: 'Started quiz: Biology — Cellular Processes',          status: 'In Progress', subject: 'Biology'   },
-        { date: '2026-03-13', time: '10:12:54', category: 'Academic', description: 'Submitted Biology quiz — Score: 2 / 2',               status: 'Success',     subject: 'Biology'   },
-        { date: '2026-03-13', time: '10:14:00', category: 'System',   description: 'Session timeout warning issued (30 min inactivity)',  status: 'Warning',     subject: 'General'  },
-        { date: '2026-03-13', time: '10:14:45', category: 'Auth',     description: 'Logged out of the SHS Portal',                        status: 'Info',        subject: 'General'  },
-    ];
+    // ─── Data Store (from the server) ────────────────────────────────────────
+    const shsLogsData = JSON.parse(document.getElementById('shs-logs-data').textContent);
 
     shsLogsData.sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
 

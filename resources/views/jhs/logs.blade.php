@@ -289,11 +289,17 @@
 
         <div class="scroll-container">
 
+            @php
+                $loginCount = $logs->where('action_type', 'Login')->where('created_at', '>=', now()->startOfMonth())->count();
+                $quizCount  = $logs->where('action_type', 'Quiz')->count();
+                $asstCount  = $logs->where('action_type', 'Assignment')->count();
+                $lastActive = $logs->first()?->created_at?->format('M j') ?? '—';
+            @endphp
             <!-- Summary bar -->
             <div class="logs-summary-bar">
                 <div class="logs-summary-left">
                     <i class="fas fa-shield-alt"></i>
-                    <span><strong>15</strong> activity records &mdash; A.Y. 2025&ndash;2026</span>
+                    <span><strong>{{ $logs->count() }}</strong> activity record{{ $logs->count() === 1 ? '' : 's' }} &mdash; A.Y. 2025&ndash;2026</span>
                 </div>
                 <div class="logs-summary-right">
                     <i class="fas fa-lock"></i>
@@ -306,28 +312,28 @@
                 <div class="log-stat-card">
                     <div class="log-stat-icon stat-login"><i class="fas fa-sign-in-alt"></i></div>
                     <div class="log-stat-text">
-                        <span class="log-stat-val">3</span>
+                        <span class="log-stat-val">{{ $loginCount }}</span>
                         <span class="log-stat-label">Logins This Month</span>
                     </div>
                 </div>
                 <div class="log-stat-card">
                     <div class="log-stat-icon stat-quiz"><i class="fas fa-edit"></i></div>
                     <div class="log-stat-text">
-                        <span class="log-stat-val">4</span>
+                        <span class="log-stat-val">{{ $quizCount }}</span>
                         <span class="log-stat-label">Quizzes Taken</span>
                     </div>
                 </div>
                 <div class="log-stat-card">
                     <div class="log-stat-icon stat-asst"><i class="fas fa-tasks"></i></div>
                     <div class="log-stat-text">
-                        <span class="log-stat-val">6</span>
+                        <span class="log-stat-val">{{ $asstCount }}</span>
                         <span class="log-stat-label">Assignments Submitted</span>
                     </div>
                 </div>
                 <div class="log-stat-card">
                     <div class="log-stat-icon stat-recent"><i class="fas fa-clock"></i></div>
                     <div class="log-stat-text">
-                        <span class="log-stat-val">Mar 15</span>
+                        <span class="log-stat-val">{{ $lastActive }}</span>
                         <span class="log-stat-label">Last Active</span>
                     </div>
                 </div>
@@ -411,24 +417,19 @@
         </div>
     </div>
 
+    @php
+        $logsJson = $logs->map(fn ($l) => [
+            'timestamp' => $l->created_at->toIso8601String(),
+            'category'  => $l->action_type,
+            'activity'  => $l->action,
+            'device'    => 'Web Browser',
+        ])->values();
+    @endphp
+    <script type="application/json" id="logs-data">{!! json_encode($logsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
     <script>
-        var logsData = [
-            { timestamp: new Date('2026-03-15T07:32:10'), category: 'Login',      activity: 'Logged in to the JHS Portal',              device: 'Chrome \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-15T07:35:44'), category: 'Assignment', activity: 'Opened Science: Ecosystems Research',        device: 'Chrome \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-15T07:48:22'), category: 'Assignment', activity: 'Submitted Science Assignment',               device: 'Chrome \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-15T08:10:05'), category: 'Quiz',       activity: 'Started Mathematics Quiz (Geometry)',        device: 'Chrome \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-15T08:38:17'), category: 'Quiz',       activity: 'Submitted Mathematics Quiz \u2014 Score: 2/2', device: 'Chrome \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-15T08:40:01'), category: 'Logout',     activity: 'Logged out of the JHS Portal',               device: 'Chrome \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-14T13:15:30'), category: 'Login',      activity: 'Logged in to the JHS Portal',               device: 'Firefox \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-14T13:20:09'), category: 'Assignment', activity: 'Opened English: Argumentative Essay',        device: 'Firefox \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-14T13:55:42'), category: 'Assignment', activity: 'Submitted English Assignment',               device: 'Firefox \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-14T14:02:18'), category: 'Quiz',       activity: 'Started English Quiz (Grammar)',             device: 'Firefox \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-14T14:25:55'), category: 'Quiz',       activity: 'Submitted English Quiz \u2014 Score: 1/2',   device: 'Firefox \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-14T14:27:00'), category: 'Logout',     activity: 'Logged out of the JHS Portal',               device: 'Firefox \u2014 Windows 11' },
-            { timestamp: new Date('2026-03-13T09:05:11'), category: 'Login',      activity: 'Logged in to the JHS Portal',               device: 'Chrome \u2014 Android Mobile' },
-            { timestamp: new Date('2026-03-13T09:08:44'), category: 'Assignment', activity: 'Opened TLE: Residential Floor Plan',         device: 'Chrome \u2014 Android Mobile' },
-            { timestamp: new Date('2026-03-13T09:40:29'), category: 'Assignment', activity: 'Submitted TLE Assignment',                   device: 'Chrome \u2014 Android Mobile' }
-        ];
+        var logsData = JSON.parse(document.getElementById('logs-data').textContent).map(function (l) {
+            return { timestamp: new Date(l.timestamp), category: l.category, activity: l.activity, device: l.device };
+        });
 
         logsData.sort(function (a, b) { return b.timestamp - a.timestamp; });
 

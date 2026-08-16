@@ -91,6 +91,7 @@
         .tag-urgent   { background:#fee2e2; color:#dc2626; }
         .tag-academic { background:#dbeafe; color:#1d4ed8; }
         .tag-event    { background:#dcfce7; color:#15803d; }
+        .tag-general  { background:#f1f5f9; color:#475569; }
 
         /* ── FEATURED CARD ── */
         .announce-featured-card {
@@ -245,82 +246,72 @@
         <div class="announce-summary-bar">
             <div class="announce-summary-left">
                 <i class="fas fa-bullhorn"></i>
-                <span><strong>3</strong> announcements &mdash; March 2026</span>
+                <span><strong>{{ $announcements->count() }}</strong> announcement{{ $announcements->count() === 1 ? '' : 's' }}</span>
             </div>
             <div class="announce-summary-right">
-                <span class="announce-tag tag-urgent"><i class="fas fa-exclamation-circle"></i> 1 Urgent</span>
-                <span class="announce-tag tag-academic">1 Academic</span>
-                <span class="announce-tag tag-event">1 Event</span>
+                <span class="announce-tag tag-urgent">{{ $announcements->where('category', 'urgent')->count() }} Urgent</span>
+                <span class="announce-tag tag-academic">{{ $announcements->where('category', 'academic')->count() }} Academic</span>
+                <span class="announce-tag tag-event">{{ $announcements->where('category', 'event')->count() }} Event</span>
             </div>
         </div>
 
-        {{-- ── Featured Card ── --}}
-        <div class="announce-featured-card">
-            <div class="announce-feat-deco"></div>
-            <div class="announce-feat-header">
-                <div class="announce-feat-icon-wrap">
-                    <i class="fas fa-flask"></i>
-                </div>
-                <div>
-                    <span class="announce-tag tag-urgent" style="margin-bottom:10px; display:inline-flex;">
-                        <i class="fas fa-exclamation-circle"></i> Urgent
-                    </span>
-                    <h2>STEM Innovation Expo 2026</h2>
-                    <p>Final project proposals for the upcoming Innovation Expo are due this Friday. Ensure your prototypes are ready for initial inspection by the strand coordinators.</p>
-                </div>
+        @if ($announcements->isEmpty())
+            <div class="announce-small-card" style="align-items:center;text-align:center;color:#94a3b8;">
+                <i class="fas fa-inbox" style="font-size:2.5rem;margin-bottom:12px;"></i>
+                <p>No announcements yet. Check back soon!</p>
             </div>
-            <div class="announce-feat-footer">
-                <div class="announce-poster">
-                    <div class="poster-avatar poster-avatar-blue">CR</div>
+        @else
+            @php $featured = $announcements->first(); $rest = $announcements->skip(1); @endphp
+
+            {{-- ── Featured Card (most recent) ── --}}
+            <div class="announce-featured-card">
+                <div class="announce-feat-deco"></div>
+                <div class="announce-feat-header">
+                    <div class="announce-feat-icon-wrap">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
                     <div>
-                        <span class="poster-name">Mr. Carlo Miguel Reyes</span>
-                        <span class="poster-role">SHS Coordinator</span>
+                        <span class="announce-tag tag-{{ $featured->category }}" style="margin-bottom:10px; display:inline-flex;">
+                            {{ ucfirst($featured->category) }}
+                        </span>
+                        <h2>{{ $featured->title }}</h2>
+                        <p>{{ $featured->content }}</p>
                     </div>
                 </div>
-                <span class="announce-date"><i class="far fa-calendar-alt"></i> March 12, 2026</span>
-            </div>
-        </div>
-
-        {{-- ── Small Cards ── --}}
-        <div class="announce-cards-grid">
-
-            <div class="announce-small-card accent-blue">
-                <div class="announce-small-top">
-                    <span class="announce-tag tag-academic">Academic</span>
-                    <span class="announce-date-sm"><i class="far fa-calendar-alt"></i> Mar 15, 2026</span>
-                </div>
-                <h3>Quarterly Exam Permits</h3>
-                <p>Examination permits are now available at the Registrar's office. Please secure yours before the exam week starts to avoid delays.</p>
-                <div class="announce-small-footer">
+                <div class="announce-feat-footer">
                     <div class="announce-poster">
-                        <div class="poster-avatar poster-avatar-blue">AE</div>
+                        <div class="poster-avatar poster-avatar-blue">{{ strtoupper(substr($featured->posted_by, 0, 2)) }}</div>
                         <div>
-                            <span class="poster-name">Anthony Edwards</span>
-                            <span class="poster-role">School Admin</span>
+                            <span class="poster-name">{{ $featured->posted_by }}</span>
                         </div>
                     </div>
+                    <span class="announce-date"><i class="far fa-calendar-alt"></i> {{ $featured->target_date->format('F j, Y') }}</span>
                 </div>
             </div>
 
-            <div class="announce-small-card accent-gold">
-                <div class="announce-small-top">
-                    <span class="announce-tag tag-event">Event</span>
-                    <span class="announce-date-sm"><i class="far fa-calendar-alt"></i> Mar 18, 2026</span>
-                </div>
-                <h3>Foundation Day Preparations</h3>
-                <p>Join the student council meeting this afternoon at the SHS Building Lobby to discuss the booth themes and student activities.</p>
-                <div class="announce-small-footer">
-                    <div class="announce-poster">
-                        <div class="poster-avatar poster-avatar-purple">AE</div>
-                        <div>
-                            <span class="poster-name">Anthony Edwards</span>
-                            <span class="poster-role">School Admin</span>
+            @if ($rest->isNotEmpty())
+                <div class="announce-cards-grid">
+                    @foreach ($rest as $ann)
+                        <div class="announce-small-card {{ $loop->even ? 'accent-gold' : 'accent-blue' }}">
+                            <div class="announce-small-top">
+                                <span class="announce-tag tag-{{ $ann->category }}">{{ ucfirst($ann->category) }}</span>
+                                <span class="announce-date-sm"><i class="far fa-calendar-alt"></i> {{ $ann->target_date->format('M j, Y') }}</span>
+                            </div>
+                            <h3>{{ $ann->title }}</h3>
+                            <p>{{ $ann->content }}</p>
+                            <div class="announce-small-footer">
+                                <div class="announce-poster">
+                                    <div class="poster-avatar poster-avatar-purple">{{ strtoupper(substr($ann->posted_by, 0, 2)) }}</div>
+                                    <div>
+                                        <span class="poster-name">{{ $ann->posted_by }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
-            </div>
-
-        </div>
+            @endif
+        @endif
     </div>
 </main>
 

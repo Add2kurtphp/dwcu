@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Faculty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -36,11 +37,18 @@ class FacultyAuthController extends Controller
             Session::put('faculty_remember', true);
         }
 
+        AuditLog::record($faculty->name, 'Logged in to the Faculty Portal', 'faculty', 'Login');
+
         return redirect()->route('faculty.dashboard');
     }
 
     public function logout(Request $request)
     {
+        $name = session('faculty_name');
+        if ($name) {
+            AuditLog::record($name, 'Logged out of the Faculty Portal', 'faculty', 'Logout');
+        }
+
         Session::forget(['faculty_id', 'faculty_name', 'faculty_remember']);
         $request->session()->regenerate();
 

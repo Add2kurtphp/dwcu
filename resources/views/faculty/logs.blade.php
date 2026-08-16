@@ -336,16 +336,14 @@
                 <div class="logs-topbar">
                     <div class="logs-summary">
                         <i class="fas fa-shield-alt"></i>
-                        <span>Showing faculty activity history including student pass requests. All times are in local time.</span>
+                        <span>Showing your activity history ({{ $logs->count() }} record{{ $logs->count() === 1 ? '' : 's' }}). All times are in local time.</span>
                     </div>
                     <div class="logs-controls">
                         <div class="filter-group" id="filterGroup">
                             <button class="filter-btn active" data-filter="All">All</button>
                             <button class="filter-btn" data-filter="Login">Logins</button>
-                            <button class="filter-btn" data-filter="Pass">Passes</button>
                             <button class="filter-btn" data-filter="Grade">Grades</button>
                             <button class="filter-btn" data-filter="Announcement">Announcements</button>
-                            <button class="filter-btn" data-filter="Drop">Drops</button>
                         </div>
                         <div class="custom-dropdown" id="sectionDropdown">
                             <button class="custom-dropdown-trigger" id="dropdownTrigger" type="button">
@@ -481,6 +479,19 @@
     </div>
 </div>
 
+@php
+    $facultyLogsJson = $logs->map(fn ($l, $i) => [
+        'id'        => $i + 1,
+        'timestamp' => $l->created_at->toIso8601String(),
+        'category'  => $l->action_type,
+        'activity'  => $l->action,
+        'detail'    => $l->module ?: 'General',
+    ])->values();
+@endphp
+<script type="application/json" id="faculty-logs-data">{!! json_encode($facultyLogsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
+<script>
+    window.FACULTY_LOGS_INITIAL = JSON.parse(document.getElementById('faculty-logs-data').textContent);
+</script>
 <script src="{{ asset('js/faculty-logs-script.js') }}"></script>
 </body>
 </html>

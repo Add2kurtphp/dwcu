@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Faculty;
 use App\Models\Grade;
 use App\Models\Student;
@@ -47,6 +48,11 @@ class GradeController extends Controller
                 'grade'   => $g['grade'],
                 'remarks' => $g['grade'] >= 75 ? 'Passed' : 'Failed',
             ]);
+        }
+
+        $faculty = Faculty::find(session('faculty_id'));
+        if ($faculty) {
+            AuditLog::record($faculty->name, "Updated grades for {$student->name}", 'faculty', 'Grade', "{$student->grade_level} - {$student->section}");
         }
 
         return response()->json($this->buildGrid($student));

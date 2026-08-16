@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SHS;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -36,11 +37,18 @@ class SHSAuthController extends Controller
             Session::put('shs_remember', true);
         }
 
+        AuditLog::record($student->name, 'Logged in to the SHS Portal', 'shs', 'Auth');
+
         return redirect()->route('shs.dashboard');
     }
 
     public function logout(Request $request)
     {
+        $name = session('shs_student_name');
+        if ($name) {
+            AuditLog::record($name, 'Logged out of the SHS Portal', 'shs', 'Auth');
+        }
+
         Session::forget(['shs_student_id', 'shs_student_name', 'shs_remember']);
         $request->session()->regenerate();
 

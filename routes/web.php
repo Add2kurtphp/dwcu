@@ -17,12 +17,18 @@ use App\Http\Controllers\Faculty\GradebookController as FacultyGradebookControll
 use App\Http\Controllers\Faculty\GradeController as FacultyGradeController;
 use App\Http\Controllers\Faculty\QuizController as FacultyQuizController;
 use App\Http\Controllers\Faculty\SubmissionController as FacultySubmissionController;
+use App\Http\Controllers\Faculty\AnnouncementController as FacultyAnnouncementController;
+use App\Http\Controllers\Faculty\LogController as FacultyLogController;
 use App\Http\Controllers\JHS\JHSAuthController;
 use App\Http\Controllers\JHS\JHSProfileController;
 use App\Http\Controllers\JHS\QuizController as JHSQuizController;
+use App\Http\Controllers\JHS\AnnouncementController as JHSAnnouncementController;
+use App\Http\Controllers\JHS\LogController as JHSLogController;
 use App\Http\Controllers\SHS\SHSAuthController;
 use App\Http\Controllers\SHS\SHSProfileController;
 use App\Http\Controllers\SHS\QuizController as SHSQuizController;
+use App\Http\Controllers\SHS\AnnouncementController as SHSAnnouncementController;
+use App\Http\Controllers\SHS\LogController as SHSLogController;
 
 // Homepage
 Route::get('/', function () {
@@ -57,9 +63,7 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
     Route::patch('/profile/info',     [JHSProfileController::class, 'updateInfo'])->name('profile.update');
     Route::patch('/profile/password', [JHSProfileController::class, 'updatePassword'])->name('profile.password');
 
-    Route::get('/announcement', function () {
-        return view('jhs.announcement');
-    })->name('announcement');
+    Route::get('/announcement', [JHSAnnouncementController::class, 'index'])->name('announcement');
 
     Route::get('/assignments', function () {
         return view('jhs.assignments');
@@ -77,9 +81,7 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
         return view('jhs.calendar');
     })->name('calendar');
 
-    Route::get('/logs', function () {
-        return view('jhs.logs');
-    })->name('logs');
+    Route::get('/logs', [JHSLogController::class, 'index'])->name('logs');
 });
 
 // SHS Auth
@@ -97,14 +99,14 @@ Route::middleware('shs')->prefix('shs')->name('shs.')->group(function () {
     Route::patch('/profile/info',     [SHSProfileController::class, 'updateInfo'])->name('profile.update');
     Route::patch('/profile/password', [SHSProfileController::class, 'updatePassword'])->name('profile.password');
 
-    Route::get('/announcement', function () { return view('shs.announcement'); })->name('announcement');
+    Route::get('/announcement', [SHSAnnouncementController::class, 'index'])->name('announcement');
     Route::get('/assignments',  function () { return view('shs.assignments'); })->name('assignments');
     Route::get('/quizzes',                [SHSQuizController::class, 'index'])->name('quizzes');
     Route::get('/quizzes/{quiz}',         [SHSQuizController::class, 'show'])->name('quizzes.take');
     Route::post('/quizzes/{quiz}/submit', [SHSQuizController::class, 'submit'])->name('quizzes.submit');
     Route::get('/gradebook',    function () { return view('shs.gradebook'); })->name('gradebook');
     Route::get('/calendar',     function () { return view('shs.calendar'); })->name('calendar');
-    Route::get('/logs',         function () { return view('shs.logs'); })->name('logs');
+    Route::get('/logs',         [SHSLogController::class, 'index'])->name('logs');
 });
 
 Route::get('/faculty/login', function () {
@@ -146,14 +148,9 @@ Route::middleware('faculty')->prefix('faculty')->name('faculty.')->group(functio
         if (!session('faculty_id')) return redirect()->route('faculty.login');
         return view('faculty.calendar');
     })->name('calendar');
-    Route::get('/announcements', function () {
-        if (!session('faculty_id')) return redirect()->route('faculty.login');
-        return view('faculty.announcements');
-    })->name('announcements');
-    Route::get('/logs', function () {
-        if (!session('faculty_id')) return redirect()->route('faculty.login');
-        return view('faculty.logs');
-    })->name('logs');
+    Route::get('/announcements',  [FacultyAnnouncementController::class, 'index'])->name('announcements');
+    Route::post('/announcements', [FacultyAnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/logs', [FacultyLogController::class, 'index'])->name('logs');
 });
 
 // Admin Auth

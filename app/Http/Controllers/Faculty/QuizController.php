@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use App\Models\Faculty;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -61,6 +63,11 @@ class QuizController extends Controller
 
             return $quiz;
         });
+
+        $faculty = Faculty::find(session('faculty_id'));
+        if ($faculty) {
+            AuditLog::record($faculty->name, "Created quiz: {$quiz->title}", 'faculty', 'Grade', "{$quiz->grade_level} - {$quiz->section}");
+        }
 
         return response()->json(['success' => true, 'quiz' => $quiz]);
     }

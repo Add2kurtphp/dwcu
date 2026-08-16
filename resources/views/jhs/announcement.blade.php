@@ -254,86 +254,71 @@
         <div class="announce-summary-bar">
             <div class="announce-summary-left">
                 <i class="fas fa-bullhorn"></i>
-                <span><strong>3</strong> announcements for your section</span>
+                <span><strong>{{ $announcements->count() }}</strong> announcement{{ $announcements->count() === 1 ? '' : 's' }} for your section</span>
             </div>
             <span class="announce-summary-date">
                 <i class="fas fa-calendar-alt"></i> A.Y. 2025 – 2026
             </span>
         </div>
 
-        {{-- Featured announcement --}}
-        <article class="announcement-card featured">
-            <div class="featured-header">
-                <div class="featured-icon-wrap">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-                <div class="featured-title-group">
-                    <span class="announce-tag tag-general">
-                        <i class="fas fa-star"></i> Featured
-                    </span>
-                    <h2>School Orientation for New Students</h2>
-                    <span class="date"><i class="fas fa-calendar-alt"></i> April 15, 2026</span>
-                </div>
+        @if ($announcements->isEmpty())
+            <div class="announcement-card" style="align-items:center;text-align:center;color:#94a3b8;padding:50px 20px;">
+                <i class="fas fa-inbox" style="font-size:2.5rem;margin-bottom:12px;"></i>
+                <p>No announcements yet. Check back soon!</p>
             </div>
-            <p class="body-text">
-                Welcome to all new students! Please attend the school orientation in the gymnasium at 8:00 AM.
-                Important information about school policies, campus facilities, and academic expectations will be covered.
-            </p>
-            <div class="card-footer">
-                <div class="poster-info">
-                    <div class="poster-avatar poster-avatar-blue">AE</div>
-                    <div>
-                        <span class="poster-name">Anthony Edwards</span>
-                        <span class="poster-role">School Administrator</span>
+        @else
+            @php $featured = $announcements->first(); $rest = $announcements->skip(1); @endphp
+
+            {{-- Featured announcement (most recent) --}}
+            <article class="announcement-card featured">
+                <div class="featured-header">
+                    <div class="featured-icon-wrap">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div class="featured-title-group">
+                        <span class="announce-tag tag-general">
+                            <i class="fas fa-star"></i> {{ ucfirst($featured->category) }}
+                        </span>
+                        <h2>{{ $featured->title }}</h2>
+                        <span class="date"><i class="fas fa-calendar-alt"></i> {{ $featured->target_date->format('F j, Y') }}</span>
                     </div>
                 </div>
-            </div>
-        </article>
-
-        {{-- Secondary grid --}}
-        <div class="secondary-grid">
-
-            <article class="announcement-card small accent-yellow">
-                <div class="small-card-top">
-                    <span class="announce-tag tag-academic">
-                        <i class="fas fa-book"></i> Academic
-                    </span>
-                    <span class="date"><i class="fas fa-calendar-alt"></i> April 15, 2026</span>
-                </div>
-                <h2>Quiz in Mathematics</h2>
-                <p class="body-text">There will be a Math quiz on March 17, 2026. Make sure to review the topics we've discussed in class, including algebra and geometry.</p>
+                <p class="body-text">{{ $featured->content }}</p>
                 <div class="card-footer">
                     <div class="poster-info">
-                        <div class="poster-avatar poster-avatar-green">CS</div>
+                        <div class="poster-avatar poster-avatar-blue">{{ strtoupper(substr($featured->posted_by, 0, 2)) }}</div>
                         <div>
-                            <span class="poster-name">Mrs. Catherine Santos</span>
-                            <span class="poster-role">Math Teacher</span>
+                            <span class="poster-name">{{ $featured->posted_by }}</span>
                         </div>
                     </div>
                 </div>
             </article>
 
-            <article class="announcement-card small accent-purple">
-                <div class="small-card-top">
-                    <span class="announce-tag tag-event">
-                        <i class="fas fa-calendar-check"></i> Event
-                    </span>
-                    <span class="date"><i class="fas fa-calendar-alt"></i> April 20, 2026</span>
+            @if ($rest->isNotEmpty())
+                <div class="secondary-grid">
+                    @foreach ($rest as $ann)
+                        <article class="announcement-card small {{ $loop->even ? 'accent-purple' : 'accent-yellow' }}">
+                            <div class="small-card-top">
+                                <span class="announce-tag {{ $ann->category === 'academic' ? 'tag-academic' : ($ann->category === 'event' ? 'tag-event' : 'tag-general') }}">
+                                    {{ ucfirst($ann->category) }}
+                                </span>
+                                <span class="date"><i class="fas fa-calendar-alt"></i> {{ $ann->target_date->format('M j, Y') }}</span>
+                            </div>
+                            <h2>{{ $ann->title }}</h2>
+                            <p class="body-text">{{ $ann->content }}</p>
+                            <div class="card-footer">
+                                <div class="poster-info">
+                                    <div class="poster-avatar poster-avatar-green">{{ strtoupper(substr($ann->posted_by, 0, 2)) }}</div>
+                                    <div>
+                                        <span class="poster-name">{{ $ann->posted_by }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
-                <h2>Upcoming Career Guidance Seminar</h2>
-                <p class="body-text">A Career Guidance Seminar will be held on April 28, 2026 at the school auditorium. All students are encouraged to attend to learn about college preparation, strand selection, and future career opportunities.</p>
-                <div class="card-footer">
-                    <div class="poster-info">
-                        <div class="poster-avatar poster-avatar-purple">AE</div>
-                        <div>
-                            <span class="poster-name">Anthony Edwards</span>
-                            <span class="poster-role">School Admin</span>
-                        </div>
-                    </div>
-                </div>
-            </article>
-
-        </div>
+            @endif
+        @endif
     </div>
 </main>
 

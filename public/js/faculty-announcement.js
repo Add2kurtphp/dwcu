@@ -1,48 +1,15 @@
-// ─── Shared Data Storage Keys ────────────────────────────────────────────────
-const ANN_STORAGE_KEY = 'dwcu_announcements';
-const EVT_STORAGE_KEY = 'dwcu_events';
+// ─── Real announcement data (from the server, via window.ANNOUNCEMENTS_INITIAL) ──
+let ANNOUNCEMENTS_DATA = window.ANNOUNCEMENTS_INITIAL ? window.ANNOUNCEMENTS_INITIAL.slice() : [];
 
-// ─── Default Announcement Data ────────────────────────────────────────────────
-const DEFAULT_ANNOUNCEMENTS = [
-  { id:1,  title:'Quiz in Mathematics (Algebra)',      category:'Quiz',       expiry:'2026-03-14', desc:'Preparation for the upcoming Algebra quiz. Focus on Linear Equations and Factoring.',    section:'Grade 9 - Innovators',  author:'Edward Zeller' },
-  { id:2,  title:'English Essay Submission',           category:'Assignment', expiry:'2026-03-16', desc:'Deadline for the descriptive essay submission. Submit your drafts via the portal.',      section:'Grade 9 - Innovators',  author:'Karen Kemper'  },
-  { id:3,  title:'Faculty Meeting – SHS Department',  category:'Meeting',    expiry:'2026-03-25', desc:'Mandatory attendance for all SHS faculty. Venue: AVR Room 3, 3:00 PM.',                  section:'Grade 11 - STEM',       author:'Admin'         },
-  { id:4,  title:'Quarterly Examination Schedule',    category:'Exam',       expiry:'2026-04-01', desc:'Exam week is scheduled April 7–11. Please prepare review materials.',                    section:'Grade 12 - STEM',       author:'Admin'         },
-  { id:5,  title:'Science Fair Judging Day',           category:'Exam',       expiry:'2026-03-22', desc:'Grade 10 science fair entries will be judged on March 22, Hall B.',                     section:'Grade 10 - Leaders',    author:'Science Dept'  },
-  { id:6,  title:'TLE Performance Task',              category:'Assignment', expiry:'2026-03-24', desc:'Submit your TLE performance task output to your subject teacher.',                       section:'Grade 8 - Researchers', author:'TLE Dept'      },
-  { id:7,  title:'Mathematics Long Quiz #2',          category:'Quiz',       expiry:'2026-03-28', desc:'Coverage includes Quadratic Equations and Systems of Linear Equations.',                 section:'Grade 9 - Innovators',  author:'Math Dept'     },
-  { id:8,  title:'ICT Programming Project',           category:'Assignment', expiry:'2026-04-05', desc:'Submit your final programming project on the portal. Language: Python or Java.',         section:'Grade 11 - ICT',        author:'ICT Dept'      },
-  { id:9,  title:'HUMSS Research Paper Deadline',     category:'Assignment', expiry:'2026-04-03', desc:'Final research paper must be submitted to your HUMSS adviser.',                          section:'Grade 11 - HUMSS',      author:'HUMSS Dept'    },
-  { id:10, title:'STEM Chemistry Lab Report',         category:'Assignment', expiry:'2026-03-27', desc:'Laboratory report for the acid-base experiment is due Friday.',                          section:'Grade 12 - STEM',       author:'Science Dept'  },
-  { id:11, title:'Grade 7 Science Activity',          category:'Assignment', expiry:'2026-03-25', desc:'Complete the leaf classification activity and submit illustrations.',                     section:'Grade 7 - Explorers',   author:'Science Dept'  },
-  { id:12, title:'Grade 8 Math Quiz – Integers',      category:'Quiz',       expiry:'2026-03-21', desc:'Quiz on integers and rational numbers. Review your notes on absolute values.',           section:'Grade 8 - Researchers', author:'Math Dept'     },
-  { id:13, title:'Grade 10 Midterm Exam',             category:'Exam',       expiry:'2026-03-26', desc:'Midterm examination covers all topics from 1st semester. Study all reviewer sheets.',    section:'Grade 10 - Leaders',    author:'Admin'         },
-  { id:14, title:'Grade 12 ICT Capstone Defense',     category:'Exam',       expiry:'2026-04-10', desc:'Final capstone project defense schedule will be posted this week. Prepare your slides.', section:'Grade 12 - ICT',        author:'ICT Dept'      },
-  { id:15, title:'HUMSS G12 Oral Defense',            category:'Exam',       expiry:'2026-04-08', desc:'Oral defense of research papers begins April 8. Consult your adviser for schedule.',     section:'Grade 12 - HUMSS',      author:'HUMSS Dept'    },
-];
-
-// ─── Default Event Data ───────────────────────────────────────────────────────
-const DEFAULT_EVENTS = [
-  { id:1, title:'Mathematics Quiz (Algebra)',   day:14, category:'Quiz',        expiry:'2026-03-14', section:'Grade 9 - Innovators'  },
-  { id:2, title:'English Essay Submission',     day:16, category:'Assignment',  expiry:'2026-03-16', section:'Grade 9 - Innovators'  },
-  { id:3, title:'Science Quarterly Exam',       day:20, category:'Examination', expiry:'2026-03-20', section:'Grade 9 - Innovators'  },
-  { id:4, title:'TLE Performance Task',         day:24, category:'Assignment',  expiry:'2026-03-24', section:'Grade 8 - Researchers' },
-  { id:5, title:'Mathematics Long Quiz #2',     day:28, category:'Quiz',        expiry:'2026-03-28', section:'Grade 9 - Innovators'  },
-  { id:6, title:'Science Fair Judging',         day:22, category:'Examination', expiry:'2026-03-22', section:'Grade 10 - Leaders'    },
-  { id:7, title:'ICT Programming Project Due',  day: 5, category:'Assignment',  expiry:'2026-04-05', section:'Grade 11 - ICT'        },
-  { id:8, title:'STEM Chemistry Lab Report',    day:27, category:'Assignment',  expiry:'2026-03-27', section:'Grade 12 - STEM'       },
-];
-
-// ─── Storage helpers ──────────────────────────────────────────────────────────
-function loadAnnouncements() {
-  try { const s = localStorage.getItem(ANN_STORAGE_KEY); return s ? JSON.parse(s) : DEFAULT_ANNOUNCEMENTS; }
-  catch { return DEFAULT_ANNOUNCEMENTS; }
+function csrfToken() {
+  const m = document.querySelector('meta[name="csrf-token"]');
+  return m ? m.content : '';
 }
-function saveAnnouncements(data) { localStorage.setItem(ANN_STORAGE_KEY, JSON.stringify(data)); }
-function loadEvents() {
-  try { const s = localStorage.getItem(EVT_STORAGE_KEY); return s ? JSON.parse(s) : DEFAULT_EVENTS; }
-  catch { return DEFAULT_EVENTS; }
-}
+
+function loadAnnouncements() { return ANNOUNCEMENTS_DATA; }
+
+// Upcoming events aren't backed by real data yet — keep the sidebar quiet instead of showing fake ones.
+function loadEvents() { return []; }
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 function isExpired(expiryStr) {
@@ -55,9 +22,9 @@ function formatDate(str) {
   return d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
 }
 
-const CAT_CLS  = { 'Quiz':'cat-quiz','Assignment':'cat-assignment','Exam':'cat-exam-bdg','Examination':'cat-exam-bdg','Meeting':'cat-meeting','Holiday':'cat-holiday','General':'cat-general' };
-const CAT_ICON = { 'Quiz':'fas fa-lightbulb','Assignment':'fas fa-tasks','Exam':'fas fa-clipboard-list','Examination':'fas fa-clipboard-list','Meeting':'fas fa-users','Holiday':'fas fa-umbrella-beach','General':'fas fa-bullhorn' };
-const CAT_BG   = { 'Quiz':'blue-bg','Assignment':'green-bg','Exam':'red-bg','Examination':'red-bg','Meeting':'purple-bg','Holiday':'orange-bg','General':'gray-bg' };
+const CAT_CLS  = { 'Quiz':'cat-quiz','Assignment':'cat-assignment','Exam':'cat-exam-bdg','Examination':'cat-exam-bdg','Meeting':'cat-meeting','Holiday':'cat-holiday','General':'cat-general','Academic':'cat-quiz','Urgent':'cat-exam-bdg','Event':'cat-meeting' };
+const CAT_ICON = { 'Quiz':'fas fa-lightbulb','Assignment':'fas fa-tasks','Exam':'fas fa-clipboard-list','Examination':'fas fa-clipboard-list','Meeting':'fas fa-users','Holiday':'fas fa-umbrella-beach','General':'fas fa-bullhorn','Academic':'fas fa-book','Urgent':'fas fa-exclamation-circle','Event':'fas fa-calendar-check' };
+const CAT_BG   = { 'Quiz':'blue-bg','Assignment':'green-bg','Exam':'red-bg','Examination':'red-bg','Meeting':'purple-bg','Holiday':'orange-bg','General':'gray-bg','Academic':'blue-bg','Urgent':'red-bg','Event':'purple-bg' };
 function catCls(c)  { return CAT_CLS[c]  || 'cat-general'; }
 function catIcon(c) { return CAT_ICON[c] || 'fas fa-bullhorn'; }
 function catBg(c)   { return CAT_BG[c]   || 'gray-bg'; }
@@ -66,8 +33,13 @@ function catBg(c)   { return CAT_BG[c]   || 'gray-bg'; }
 function renderAnnouncements(section) {
   const feed     = document.getElementById('annFeed');
   const empty    = document.getElementById('annEmpty');
-  const data     = loadAnnouncements();
-  const filtered = section ? data.filter(a => a.section === section) : data;
+  const data = loadAnnouncements();
+  let filtered = data;
+  if (section) {
+    const gradeMatch = section.match(/\d+/);
+    const level = gradeMatch && parseInt(gradeMatch[0]) >= 11 ? 'shs' : 'jhs';
+    filtered = data.filter(a => a.audience === level || a.audience === 'all');
+  }
 
   if (filtered.length === 0) {
     feed.innerHTML = '';
@@ -216,27 +188,37 @@ document.addEventListener('DOMContentLoaded', () => {
       const title   = form.querySelector('input[type="text"]').value.trim();
       const content = form.querySelector('textarea').value.trim();
       const section = modalInput.value;
-      if (!title || !section) return;
+      if (!title || !content || !section) return;
 
-      const data  = loadAnnouncements();
-      const newId = data.length ? Math.max(...data.map(a => a.id)) + 1 : 1;
-      data.unshift({
-        id: newId, title, category: 'General',
-        expiry: new Date().toISOString().split('T')[0],
-        desc: content, section, author: 'Faculty'
-      });
-      saveAnnouncements(data);
-      form.reset();
-      modalLabel.textContent      = 'Select a class...';
-      modalLabel.style.color      = '#94a3b8';
-      modalLabel.style.fontWeight = '500';
-      modalInput.value            = '';
-      modalMenu.querySelectorAll('.modal-dd-option').forEach(o => o.classList.remove('selected'));
-      closeModal();
+      fetch(window.announcementRoutes.store, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrfToken(),
+        },
+        body: JSON.stringify({ title, content, section }),
+      })
+        .then(r => { if (!r.ok) return r.json().then(e => Promise.reject(e)); return r.json(); })
+        .then(data => {
+          const a = data.announcement;
+          ANNOUNCEMENTS_DATA.unshift({
+            id: a.id, title: a.title, category: a.category.charAt(0).toUpperCase() + a.category.slice(1),
+            expiry: a.target_date, desc: a.content, author: a.posted_by, audience: a.audience,
+          });
 
-      const currentVal = annMenu.querySelector('.ann-dropdown-option.selected')?.dataset?.value || '';
-      renderAnnouncements(currentVal);
-      renderSidebarEvents(currentVal);
+          form.reset();
+          modalLabel.textContent      = 'Select a class...';
+          modalLabel.style.color      = '#94a3b8';
+          modalLabel.style.fontWeight = '500';
+          modalInput.value            = '';
+          modalMenu.querySelectorAll('.modal-dd-option').forEach(o => o.classList.remove('selected'));
+          closeModal();
+
+          const currentVal = annMenu.querySelector('.ann-dropdown-option.selected')?.dataset?.value || '';
+          renderAnnouncements(currentVal);
+        })
+        .catch(() => alert('Error posting announcement.'));
     });
   }
 

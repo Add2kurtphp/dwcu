@@ -2,40 +2,14 @@
  * DWCU Faculty Portal — Activity Logs
  */
 
-// ─── Log Data ─────────────────────────────────────────────────────────────────
-const logsData = [
-    { id: 1,  timestamp: new Date('2026-03-19T07:15:02'), category: 'Login',        activity: 'Logged in to the Faculty Portal',                    detail: 'Chrome — Windows 11' },
-    { id: 2,  timestamp: new Date('2026-03-19T07:18:44'), category: 'Pass',         activity: 'Viewed pass request — Juan dela Cruz',               detail: 'Grade 9 - Innovators · Comfort Room' },
-    { id: 3,  timestamp: new Date('2026-03-19T07:19:10'), category: 'Pass',         activity: 'Approved pass request — Juan dela Cruz',             detail: 'Grade 9 - Innovators · Comfort Room' },
-    { id: 4,  timestamp: new Date('2026-03-19T08:05:33'), category: 'Grade',        activity: 'Posted quiz score — Mathematics (Algebra)',           detail: 'Grade 9 - Innovators · 2 students',
-      students: [{ name: 'Emma Hall', score: '92/100' }, { name: 'Anna Lim', score: '88/100' }] },
-    { id: 5,  timestamp: new Date('2026-03-19T08:22:17'), category: 'Announcement', activity: 'Posted announcement — Final Exam Schedule',          detail: 'Grade 9 - Innovators' },
-    { id: 6,  timestamp: new Date('2026-03-19T09:00:58'), category: 'Pass',         activity: 'Viewed pass request — Maria Santos',                 detail: 'Grade 10 - Leaders · Clinic' },
-    { id: 7,  timestamp: new Date('2026-03-19T09:01:30'), category: 'Pass',         activity: 'Approved pass request — Maria Santos',               detail: 'Grade 10 - Leaders · Clinic' },
-    { id: 8,  timestamp: new Date('2026-03-19T10:45:00'), category: 'Grade',        activity: 'Posted assignment grade — English Essay',            detail: 'Grade 8 - Researchers · 2 students',
-      students: [{ name: 'Mark Zuckerberg', score: '87/100' }, { name: 'Maria Santos', score: '91/100' }] },
-    { id: 9,  timestamp: new Date('2026-03-19T11:30:22'), category: 'Logout',       activity: 'Logged out of the Faculty Portal',                   detail: 'Chrome — Windows 11' },
-    { id: 10, timestamp: new Date('2026-03-18T08:00:11'), category: 'Login',        activity: 'Logged in to the Faculty Portal',                    detail: 'Chrome — Windows 11' },
-    { id: 11, timestamp: new Date('2026-03-18T08:10:05'), category: 'Pass',         activity: 'Viewed pass request — Carlo Reyes',                  detail: 'Grade 7 - Explorers · Library' },
-    { id: 12, timestamp: new Date('2026-03-18T08:10:40'), category: 'Pass',         activity: 'Approved pass request — Carlo Reyes',                detail: 'Grade 7 - Explorers · Library' },
-    { id: 13, timestamp: new Date('2026-03-18T09:15:30'), category: 'Grade',        activity: 'Posted quiz score — Science (Ecosystems)',           detail: 'Grade 7 - Explorers · 3 students',
-      students: [{ name: 'Alexandra Cruz', score: '90/100' }, { name: 'Michael Flores', score: '85/100' }, { name: 'Pedro Cruz', score: '79/100' }] },
-    { id: 14, timestamp: new Date('2026-03-18T10:00:00'), category: 'Announcement', activity: 'Posted announcement — Science Lab Activity',        detail: 'Grade 7 - Explorers' },
-    { id: 15, timestamp: new Date('2026-03-18T10:55:18'), category: 'Pass',         activity: 'Viewed pass request — Ana Lim',                     detail: 'Grade 9 - Innovators · Guidance Office' },
-    { id: 16, timestamp: new Date('2026-03-18T10:56:00'), category: 'Pass',         activity: 'Approved pass request — Ana Lim',                   detail: 'Grade 9 - Innovators · Guidance Office' },
-    { id: 17, timestamp: new Date('2026-03-18T13:40:09'), category: 'Grade',        activity: 'Posted assignment grade — TLE Floor Plan',          detail: 'Grade 8 - Researchers · 2 students',
-      students: [{ name: 'Mark Zuckerberg', score: '88/100' }, { name: 'Maria Santos', score: '82/100' }] },
-    { id: 18, timestamp: new Date('2026-03-18T14:30:00'), category: 'Logout',       activity: 'Logged out of the Faculty Portal',                   detail: 'Chrome — Windows 11' },
-    { id: 19, timestamp: new Date('2026-03-17T07:45:55'), category: 'Login',        activity: 'Logged in to the Faculty Portal',                    detail: 'Firefox — Windows 11' },
-    { id: 20, timestamp: new Date('2026-03-17T08:20:14'), category: 'Pass',         activity: 'Viewed pass request — Ben Torres',                  detail: 'Grade 10 - Leaders · Comfort Room' },
-    { id: 21, timestamp: new Date('2026-03-17T08:20:50'), category: 'Pass',         activity: 'Approved pass request — Ben Torres',                detail: 'Grade 10 - Leaders · Comfort Room' },
-    { id: 22, timestamp: new Date('2026-03-17T09:05:33'), category: 'Announcement', activity: 'Posted announcement — English Essay Deadline',      detail: 'Grade 10 - Leaders' },
-    { id: 23, timestamp: new Date('2026-03-17T11:00:00'), category: 'Grade',        activity: 'Posted quiz score — English (Grammar)',             detail: 'Grade 10 - Leaders · 2 students',
-      students: [{ name: 'Steven Santos', score: '96/100' }, { name: 'Luis Garcia', score: '81/100' }] },
-    { id: 24, timestamp: new Date('2026-03-17T12:05:42'), category: 'Logout',       activity: 'Logged out of the Faculty Portal',                   detail: 'Firefox — Windows 11' },
-    { id: 25, timestamp: new Date('2026-03-19T10:00:00'), category: 'Drop',         activity: 'Luis Garcia was dropped from Grade 10 - Leaders',   detail: 'Grade 10 - Leaders · Student Drop',
-      dropDetail: { name: 'Luis Garcia', studentId: '2024-0102', section: 'Grade 10 - Leaders', droppedBy: 'Anthony Edwards', droppedByInitials: 'AE', droppedByPortal: 'Admin Portal' } },
-];
+// ─── Log Data (from the server, via window.FACULTY_LOGS_INITIAL) ──────────────
+const logsData = (window.FACULTY_LOGS_INITIAL || []).map(l => ({
+    id: l.id,
+    timestamp: new Date(l.timestamp),
+    category: l.category,
+    activity: l.activity,
+    detail: l.detail,
+}));
 
 // Sort newest first
 logsData.sort((a, b) => b.timestamp - a.timestamp);
