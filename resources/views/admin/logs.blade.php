@@ -220,7 +220,7 @@
         ];
     })->values();
 @endphp
-<script type="application/json" id="log-data">{!! json_encode($logsJson) !!}</script>
+<script type="application/json" id="log-data">{!! json_encode($logsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
 <script>
     window.LOGS = JSON.parse(document.getElementById('log-data').textContent);
 </script>

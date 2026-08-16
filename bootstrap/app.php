@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'jhs'     => \App\Http\Middleware\JHSMiddleware::class,
             'shs'     => \App\Http\Middleware\SHSMiddleware::class,
         ]);
+
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

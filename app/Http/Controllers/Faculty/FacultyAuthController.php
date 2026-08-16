@@ -27,6 +27,8 @@ class FacultyAuthController extends Controller
             ])->onlyInput('faculty_id');
         }
 
+        $request->session()->regenerate();
+
         Session::put('faculty_id',   $faculty->id);
         Session::put('faculty_name', $faculty->name);
 
@@ -40,6 +42,7 @@ class FacultyAuthController extends Controller
     public function logout(Request $request)
     {
         Session::forget(['faculty_id', 'faculty_name', 'faculty_remember']);
+        $request->session()->regenerate();
 
         return redirect()->route('faculty.login');
     }

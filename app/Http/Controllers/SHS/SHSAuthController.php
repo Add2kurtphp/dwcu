@@ -27,6 +27,8 @@ class SHSAuthController extends Controller
             ])->onlyInput('student_id');
         }
 
+        $request->session()->regenerate();
+
         Session::put('shs_student_id',   $student->id);
         Session::put('shs_student_name', $student->name);
 
@@ -40,6 +42,7 @@ class SHSAuthController extends Controller
     public function logout(Request $request)
     {
         Session::forget(['shs_student_id', 'shs_student_name', 'shs_remember']);
+        $request->session()->regenerate();
 
         return redirect()->route('shs.login');
     }

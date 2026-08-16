@@ -44,7 +44,7 @@ Route::get('/contact', function () {
 
 // JHS Auth
 Route::get('/jhs/login',  function () { return view('auth.jhs-login'); })->name('jhs.login');
-Route::post('/jhs/login', [JHSAuthController::class, 'login'])->name('jhs.login.post');
+Route::post('/jhs/login', [JHSAuthController::class, 'login'])->middleware('throttle:5,1')->name('jhs.login.post');
 Route::post('/jhs/logout', [JHSAuthController::class, 'logout'])->name('jhs.logout');
 
 // JHS Protected Routes
@@ -84,7 +84,7 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
 
 // SHS Auth
 Route::get('/shs/login',  function () { return view('auth.shs-login'); })->name('shs.login');
-Route::post('/shs/login', [SHSAuthController::class, 'login'])->name('shs.login.post');
+Route::post('/shs/login', [SHSAuthController::class, 'login'])->middleware('throttle:5,1')->name('shs.login.post');
 Route::post('/shs/logout', [SHSAuthController::class, 'logout'])->name('shs.logout');
 
 // SHS Protected Routes
@@ -111,7 +111,7 @@ Route::get('/faculty/login', function () {
     return view('auth.faculty-login');
 })->name('faculty.login');
 
-Route::post('/faculty/login', [FacultyAuthController::class, 'login'])->name('faculty.login.post');
+Route::post('/faculty/login', [FacultyAuthController::class, 'login'])->middleware('throttle:5,1')->name('faculty.login.post');
 Route::post('/faculty/logout', [FacultyAuthController::class, 'logout'])->name('faculty.logout');
 
 // Faculty Protected Routes
@@ -158,7 +158,7 @@ Route::middleware('faculty')->prefix('faculty')->name('faculty.')->group(functio
 
 // Admin Auth
 Route::get('/admin/login',  [AdminAuthController::class, 'showLogin'])->name('admin.login');
-Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1')->name('admin.login.post');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
 // Admin Protected Routes

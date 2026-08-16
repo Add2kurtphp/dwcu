@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Faculty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class FacultyController extends Controller
 {
@@ -22,7 +23,7 @@ class FacultyController extends Controller
             'name'        => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'department'  => 'required|string|max:255',
-            'password'    => 'required|string|min:6',
+            'password'    => ['required', 'string', Password::min(8)->mixedCase()->numbers()],
         ]);
 
         $faculty = Faculty::create([
@@ -43,7 +44,7 @@ class FacultyController extends Controller
             'name'         => 'required|string|max:255',
             'designation'  => 'required|string|max:255',
             'department'   => 'required|string|max:255',
-            'new_password' => 'nullable|string|min:6',
+            'new_password' => ['nullable', 'string', Password::min(8)->mixedCase()->numbers()],
         ]);
 
         $data = [

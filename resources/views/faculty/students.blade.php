@@ -379,7 +379,7 @@
         ];
     })->values();
 @endphp
-<script type="application/json" id="students-data">{!! json_encode($studentsJson) !!}</script>
+<script type="application/json" id="students-data">{!! json_encode($studentsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
 <script>
 window.reportRoutes = {
     base: "{{ url('faculty/students') }}",

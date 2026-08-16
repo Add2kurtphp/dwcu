@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
+use App\Models\Faculty;
 use App\Models\Grade;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -13,11 +14,15 @@ class GradeController extends Controller
 
     public function show(Student $student)
     {
+        $this->authorizeAccess($student);
+
         return response()->json($this->buildGrid($student));
     }
 
     public function update(Request $request, Student $student)
     {
+        $this->authorizeAccess($student);
+
         $request->validate([
             'grades'             => 'required|array',
             'grades.*.subject'   => 'required|string',
@@ -45,6 +50,12 @@ class GradeController extends Controller
         }
 
         return response()->json($this->buildGrid($student));
+    }
+
+    private function authorizeAccess(Student $student): void
+    {
+        $faculty = Faculty::findOrFail(session('faculty_id'));
+        abort_unless($faculty->canAccessStudent($student), 403);
     }
 
     private function buildGrid(Student $student): array

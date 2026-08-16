@@ -429,7 +429,7 @@
             ];
         })->values();
     @endphp
-    <script type="application/json" id="ann-data">{!! json_encode($annJson) !!}</script>
+    <script type="application/json" id="ann-data">{!! json_encode($annJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
     <script>
         window.annRoutes = {
             store:   "{{ route('admin.announcements.store') }}",

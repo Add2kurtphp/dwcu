@@ -27,6 +27,8 @@ class JHSAuthController extends Controller
             ])->onlyInput('student_id');
         }
 
+        $request->session()->regenerate();
+
         Session::put('jhs_student_id',   $student->id);
         Session::put('jhs_student_name', $student->name);
 
@@ -40,6 +42,7 @@ class JHSAuthController extends Controller
     public function logout(Request $request)
     {
         Session::forget(['jhs_student_id', 'jhs_student_name', 'jhs_remember']);
+        $request->session()->regenerate();
 
         return redirect()->route('jhs.login');
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class AdminProfileController extends Controller
 {
@@ -33,7 +34,7 @@ class AdminProfileController extends Controller
     {
         $request->validate([
             'current_password' => ['required'],
-            'new_password'     => ['required', 'min:8', 'confirmed'],
+            'new_password'     => ['required', Password::min(8)->mixedCase()->numbers(), 'confirmed'],
         ]);
 
         if (!Hash::check($request->current_password, Auth::user()->password)) {

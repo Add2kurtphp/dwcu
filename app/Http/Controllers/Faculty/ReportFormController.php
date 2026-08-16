@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
+use App\Models\Faculty;
 use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -10,6 +11,8 @@ class ReportFormController extends Controller
 {
     public function sf9(Student $student)
     {
+        $this->authorizeAccess($student);
+
         $bySubject = $this->gradesBySubject($student);
 
         $pdf = Pdf::loadView('reports.sf9', [
@@ -23,6 +26,8 @@ class ReportFormController extends Controller
 
     public function sf10(Student $student)
     {
+        $this->authorizeAccess($student);
+
         $bySubject = $this->gradesBySubject($student);
 
         $pdf = Pdf::loadView('reports.sf10', [
@@ -32,6 +37,12 @@ class ReportFormController extends Controller
         ])->setPaper('legal', 'portrait');
 
         return $pdf->stream("SF10-{$student->student_id}.pdf");
+    }
+
+    private function authorizeAccess(Student $student): void
+    {
+        $faculty = Faculty::findOrFail(session('faculty_id'));
+        abort_unless($faculty->canAccessStudent($student), 403);
     }
 
     private function gradesBySubject(Student $student): array
