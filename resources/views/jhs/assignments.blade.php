@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Assignments | DWCU Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -236,8 +237,31 @@
         .modal-input-group { margin-bottom: 18px; }
         .modal-input-group label { display: block; font-size: 0.83rem; font-weight: 700; color: #334155; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.04em; }
         .optional-label { font-weight: 400; color: #94a3b8; text-transform: none; letter-spacing: 0; }
-        .form-select { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #e2e8f0; font-family: 'Afacad', sans-serif; font-size: 0.95rem; color: #1e293b; outline: none; transition: border-color 0.2s; }
-        .form-select:focus { border-color: #1e2f7a; }
+        .form-select { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #e2e8f0; font-family: 'Afacad', sans-serif; font-size: 0.95rem; color: #1e293b; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-select:focus { border-color: #1e2f7a; box-shadow: 0 0 0 3px rgba(30,47,122,0.1); }
+
+        /* ── Custom subject dropdown ── */
+        .custom-subject-dropdown { position: relative; width: 100%; font-family: 'Afacad', sans-serif; }
+        .custom-subject-trigger {
+            width: 100%; display: flex; align-items: center; justify-content: space-between;
+            background: #fafbff; border: 1.5px solid #e2e8f0; border-radius: 10px;
+            padding: 11px 14px; cursor: pointer; font-family: 'Afacad', sans-serif;
+            font-size: 0.95rem; color: #1e293b; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .custom-subject-trigger:hover { border-color: #94a3b8; }
+        .custom-subject-dropdown.open .custom-subject-trigger { border-color: #1e2f7a; box-shadow: 0 0 0 3px rgba(30,47,122,0.1); }
+        .subject-chevron { color: #1e2f7a; font-size: 0.72rem; transition: transform 0.2s; }
+        .custom-subject-dropdown.open .subject-chevron { transform: rotate(180deg); }
+        .custom-subject-menu {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+            background: white; border: 1.5px solid #e2e8f0; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(30,47,122,0.15); z-index: 50;
+            list-style: none; margin: 0; padding: 6px; max-height: 220px; overflow-y: auto;
+        }
+        .custom-subject-dropdown.open .custom-subject-menu { display: block; }
+        .custom-subject-option { padding: 9px 12px; border-radius: 8px; font-size: 0.9rem; color: #1e293b; cursor: pointer; transition: background 0.15s; }
+        .custom-subject-option:hover { background: #f1f3fb; }
+        .custom-subject-option.selected { background: #eef1fb; color: #1e2f7a; font-weight: 700; }
 
         .upload-box { border: 2px dashed #cbd5e1; border-radius: 14px; padding: 36px 20px; text-align: center; cursor: pointer; background: #f8fafc; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.3s; margin-bottom: 18px; }
         .upload-box:hover { background: #f1f5f9; border-color: #1e2f7a; }
@@ -326,91 +350,110 @@
         </a>
     </header>
 
+    @php
+        $subjectMeta = [
+            'Science'     => ['tag' => 'tag-science', 'icon' => 'fa-flask',      'accent' => 'accent-blue'],
+            'Mathematics' => ['tag' => 'tag-math',    'icon' => 'fa-calculator', 'accent' => 'accent-blue'],
+            'English'     => ['tag' => 'tag-english', 'icon' => 'fa-book',       'accent' => 'accent-purple'],
+            'TLE'         => ['tag' => 'tag-tle',     'icon' => 'fa-tools',      'accent' => 'accent-orange'],
+        ];
+        $defaultMeta = ['tag' => 'tag-tle', 'icon' => 'fa-book', 'accent' => 'accent-blue'];
+        $pendingCount = $assignments->filter(fn ($a) => !$submissions->has($a->id))->count();
+        $featured = $assignments->first();
+        $rest = $assignments->slice(1);
+    @endphp
+
     <div class="scroll-container">
 
         {{-- Summary bar --}}
         <div class="assign-summary-bar">
             <div class="assign-summary-left">
                 <i class="fas fa-tasks"></i>
-                <span><strong>4</strong> pending assignments</span>
+                <span><strong>{{ $pendingCount }}</strong> pending assignment{{ $pendingCount === 1 ? '' : 's' }}</span>
             </div>
             <span class="assign-summary-right">
                 <i class="fas fa-exclamation-circle"></i> Submit before the due date
             </span>
         </div>
 
-        {{-- Featured assignment --}}
-        <article class="assignment-card featured">
-            <div class="assign-feat-decoration"></div>
-            <div class="assign-feat-header">
-                <div class="assign-feat-icon science-bg">
-                    <i class="fas fa-flask"></i>
+        @if ($assignments->isEmpty())
+            <p style="color:#94a3b8;text-align:center;padding:40px 0;">No assignments posted yet.</p>
+        @endif
+
+        @if ($featured)
+            @php
+                $meta = $subjectMeta[$featured->subject] ?? $defaultMeta;
+                $submitted = $submissions->has($featured->id);
+                $isUrgent = now()->diffInDays($featured->due_date, false) <= 3;
+            @endphp
+            {{-- Featured assignment --}}
+            <article class="assignment-card featured">
+                <div class="assign-feat-decoration"></div>
+                <div class="assign-feat-header">
+                    <div class="assign-feat-icon science-bg">
+                        <i class="fas {{ $meta['icon'] }}"></i>
+                    </div>
+                    <div class="assign-feat-title">
+                        <span class="assign-tag"><i class="fas {{ $meta['icon'] }}"></i> {{ $featured->subject }}</span>
+                        <h2>{{ $featured->title }}</h2>
+                        <span class="assign-due {{ $isUrgent ? 'due-urgent' : 'due-normal' }}"><i class="fas fa-clock"></i> Due: {{ $featured->due_date->format('F d, Y') }}</span>
+                    </div>
                 </div>
-                <div class="assign-feat-title">
-                    <span class="assign-tag"><i class="fas fa-flask"></i> Science</span>
-                    <h2>Science: Ecosystems Research</h2>
-                    <span class="assign-due due-urgent"><i class="fas fa-clock"></i> Due: March 09, 2026</span>
-                </div>
-            </div>
-            <p class="body-text">Review the assignment details in the Google Form link provided by your teacher before submitting your photo/file below.</p>
-            <a href="https://forms.google.com" target="_blank" class="attachment-link">
-                <div class="attachment-icon"><i class="fab fa-google-drive"></i></div>
-                <div class="attachment-text">
-                    <span>Teacher's G-Form</span>
-                    <small>Science_Instructions_v1</small>
-                </div>
-                <i class="fas fa-external-link-alt attach-arrow"></i>
-            </a>
-            <button class="submit-btn" onclick="openSubmissionModal('Science')">
-                <i class="fas fa-upload"></i> Submit Work
-            </button>
-        </article>
+                @if ($featured->description)
+                    <p class="body-text">{{ $featured->description }}</p>
+                @endif
+                @if ($featured->attachment_link)
+                    <a href="{{ $featured->attachment_link }}" target="_blank" class="attachment-link">
+                        <div class="attachment-icon"><i class="fab fa-google-drive"></i></div>
+                        <div class="attachment-text">
+                            <span>Teacher's Attachment</span>
+                            <small>{{ $featured->attachment_label ?? 'View file' }}</small>
+                        </div>
+                        <i class="fas fa-external-link-alt attach-arrow"></i>
+                    </a>
+                @endif
+                @if ($submitted)
+                    <button class="submit-btn" disabled style="opacity:0.7;cursor:default;">
+                        <i class="fas fa-check-circle"></i> Submitted
+                    </button>
+                @else
+                    <button class="submit-btn" onclick="openSubmissionModal({{ $featured->id }}, '{{ addslashes($featured->subject) }}')">
+                        <i class="fas fa-upload"></i> Submit Work
+                    </button>
+                @endif
+            </article>
+        @endif
 
         {{-- Small cards --}}
         <div class="secondary-grid">
-
-            <article class="assignment-card small accent-blue">
-                <div class="small-card-top">
-                    <span class="assign-tag tag-math"><i class="fas fa-calculator"></i> Mathematics</span>
-                    <span class="assign-due due-normal"><i class="fas fa-clock"></i> Due: March 12, 2026</span>
-                </div>
-                <h3>Algebraic Expressions</h3>
-                <p class="body-text">Complete the Algebraic Expressions problem set. Show all your solutions on a clean sheet of paper.</p>
-                <div class="card-footer">
-                    <button class="submit-btn-sm" onclick="openSubmissionModal('Mathematics')">
-                        <i class="fas fa-upload"></i> Submit Work
-                    </button>
-                </div>
-            </article>
-
-            <article class="assignment-card small accent-purple">
-                <div class="small-card-top">
-                    <span class="assign-tag tag-english"><i class="fas fa-book"></i> English</span>
-                    <span class="assign-due due-normal"><i class="fas fa-clock"></i> Due: March 15, 2026</span>
-                </div>
-                <h3>Argumentative Essay Draft</h3>
-                <p class="body-text">Submit the first draft of your argumentative essay. Ensure proper citations are included.</p>
-                <div class="card-footer">
-                    <button class="submit-btn-sm" onclick="openSubmissionModal('English')">
-                        <i class="fas fa-upload"></i> Submit Work
-                    </button>
-                </div>
-            </article>
-
-            <article class="assignment-card small accent-orange">
-                <div class="small-card-top">
-                    <span class="assign-tag tag-tle"><i class="fas fa-tools"></i> TLE</span>
-                    <span class="assign-due due-normal"><i class="fas fa-clock"></i> Due: March 18, 2026</span>
-                </div>
-                <h3>Residential Floor Plan</h3>
-                <p class="body-text">Upload the photo of your drafting project (Residential Floor Plan). Ensure labels are legible.</p>
-                <div class="card-footer">
-                    <button class="submit-btn-sm" onclick="openSubmissionModal('TLE')">
-                        <i class="fas fa-upload"></i> Submit Work
-                    </button>
-                </div>
-            </article>
-
+            @foreach ($rest as $a)
+                @php
+                    $meta = $subjectMeta[$a->subject] ?? $defaultMeta;
+                    $submitted = $submissions->has($a->id);
+                    $isUrgent = now()->diffInDays($a->due_date, false) <= 3;
+                @endphp
+                <article class="assignment-card small {{ $meta['accent'] }}">
+                    <div class="small-card-top">
+                        <span class="assign-tag {{ $meta['tag'] }}"><i class="fas {{ $meta['icon'] }}"></i> {{ $a->subject }}</span>
+                        <span class="assign-due {{ $isUrgent ? 'due-urgent' : 'due-normal' }}"><i class="fas fa-clock"></i> Due: {{ $a->due_date->format('F d, Y') }}</span>
+                    </div>
+                    <h3>{{ $a->title }}</h3>
+                    @if ($a->description)
+                        <p class="body-text">{{ $a->description }}</p>
+                    @endif
+                    <div class="card-footer">
+                        @if ($submitted)
+                            <button class="submit-btn-sm" disabled style="opacity:0.7;cursor:default;background:#16a34a;">
+                                <i class="fas fa-check-circle"></i> Submitted
+                            </button>
+                        @else
+                            <button class="submit-btn-sm" onclick="openSubmissionModal({{ $a->id }}, '{{ addslashes($a->subject) }}')">
+                                <i class="fas fa-upload"></i> Submit Work
+                            </button>
+                        @endif
+                    </div>
+                </article>
+            @endforeach
         </div>
     </div>
 </main>
@@ -440,12 +483,19 @@
             <div class="submission-form">
                 <div class="modal-input-group">
                     <label>Select Subject</label>
-                    <select class="form-select" id="subject-select">
-                        <option>Science</option>
-                        <option>Mathematics</option>
-                        <option>English</option>
-                        <option>TLE</option>
-                    </select>
+                    <input type="hidden" id="subject-select" value="Science">
+                    <div class="custom-subject-dropdown" id="subjectDropdown">
+                        <button type="button" class="custom-subject-trigger" id="subjectTrigger">
+                            <span id="subjectLabel">Science</span>
+                            <i class="fas fa-chevron-down subject-chevron"></i>
+                        </button>
+                        <ul class="custom-subject-menu" id="subjectMenu">
+                            <li class="custom-subject-option selected" data-value="Science">Science</li>
+                            <li class="custom-subject-option" data-value="Mathematics">Mathematics</li>
+                            <li class="custom-subject-option" data-value="English">English</li>
+                            <li class="custom-subject-option" data-value="TLE">TLE</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="upload-box" id="drop-zone" onclick="document.getElementById('fileInput').click();">
                     <input type="file" id="fileInput" hidden>
@@ -493,6 +543,12 @@
 </div>
 
 <script>
+window.SUBMIT_URL_TEMPLATE = "{{ route('jhs.assignments.submit', ['assignment' => '__ID__']) }}";
+function csrfToken() {
+    var m = document.querySelector('meta[name="csrf-token"]');
+    return m ? m.content : '';
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
     // ── Mobile nav ──
@@ -519,15 +575,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-var submissionModal = document.getElementById('submissionModal');
+var submissionModal   = document.getElementById('submissionModal');
+var subjectDropdown   = document.getElementById('subjectDropdown');
+var subjectTrigger    = document.getElementById('subjectTrigger');
+var subjectMenu       = document.getElementById('subjectMenu');
+var subjectLabel      = document.getElementById('subjectLabel');
+var subjectHiddenInput = document.getElementById('subject-select');
+var currentAssignmentId = null;
 
-function openSubmissionModal(subject) {
-    if (subject) {
-        var select = document.getElementById('subject-select');
-        Array.from(select.options).forEach(function (opt) {
-            opt.selected = opt.value === subject;
-        });
-    }
+function setSubject(subject) {
+    subjectHiddenInput.value = subject;
+    subjectLabel.textContent = subject;
+    subjectMenu.querySelectorAll('.custom-subject-option').forEach(function (o) {
+        o.classList.toggle('selected', o.dataset.value === subject);
+    });
+}
+
+subjectTrigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    subjectDropdown.classList.toggle('open');
+});
+
+subjectMenu.addEventListener('click', function (e) {
+    var opt = e.target.closest('.custom-subject-option');
+    if (!opt) return;
+    setSubject(opt.dataset.value);
+    subjectDropdown.classList.remove('open');
+});
+
+document.addEventListener('click', function (e) {
+    if (!subjectDropdown.contains(e.target)) subjectDropdown.classList.remove('open');
+});
+
+function openSubmissionModal(assignmentId, subject) {
+    currentAssignmentId = assignmentId;
+    if (subject) setSubject(subject);
     submissionModal.classList.add('active');
     document.body.classList.add('modal-open');
 }
@@ -549,21 +631,34 @@ function submitWork() {
         alert('Please select or upload a photo of your work first!');
         return;
     }
+    if (!currentAssignmentId) return;
 
-    turnInBtn.innerHTML = '<i class="fas fa-check"></i> Submitted!';
-    turnInBtn.style.background = '#0f9d58';
+    turnInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
     turnInBtn.disabled = true;
 
-    setTimeout(function () {
-        fileInput.value = '';
-        document.getElementById('file-label').textContent = 'Click to upload or drag file here';
-        document.getElementById('file-label').style.color = '';
-        document.getElementById('submission-comments').value = '';
-        turnInBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Turn In Assignment';
-        turnInBtn.style.background = '';
-        turnInBtn.disabled = false;
-        closeSubmissionModal();
-    }, 1500);
+    var formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('comments', document.getElementById('submission-comments').value);
+
+    var url = window.SUBMIT_URL_TEMPLATE.replace('__ID__', currentAssignmentId);
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+        body: formData,
+    })
+        .then(function (r) { if (!r.ok) return r.json().then(function (e) { return Promise.reject(e); }); return r.json(); })
+        .then(function () {
+            turnInBtn.innerHTML = '<i class="fas fa-check"></i> Submitted!';
+            turnInBtn.style.background = '#0f9d58';
+            setTimeout(function () { window.location.reload(); }, 900);
+        })
+        .catch(function (err) {
+            var msg = (err && err.message) ? err.message : 'Error submitting assignment.';
+            alert(msg);
+            turnInBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Turn In Assignment';
+            turnInBtn.disabled = false;
+        });
 }
 </script>
 

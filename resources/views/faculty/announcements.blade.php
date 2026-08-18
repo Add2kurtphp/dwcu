@@ -495,11 +495,17 @@
         'author'  => $a->posted_by,
         'audience'=> $a->audience,
     ])->values();
+    $eventsJson = $events->map(fn ($e) => [
+        'id' => $e->id, 'title' => $e->title, 'date' => $e->event_date->format('Y-m-d'),
+        'category' => $e->category, 'section' => $e->section,
+    ])->values();
 @endphp
 <script type="application/json" id="ann-data">{!! json_encode($annJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
+<script type="application/json" id="events-data">{!! json_encode($eventsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
 <script>
     const CALENDAR_URL = "{{ route('faculty.calendar') }}";
     window.ANNOUNCEMENTS_INITIAL = JSON.parse(document.getElementById('ann-data').textContent);
+    window.EVENTS_INITIAL = JSON.parse(document.getElementById('events-data').textContent);
     window.announcementRoutes = { store: "{{ route('faculty.announcements.store') }}" };
 </script>
 <script src="{{ asset('js/faculty-announcement.js') }}"></script>

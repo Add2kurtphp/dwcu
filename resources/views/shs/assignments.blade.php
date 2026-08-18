@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Assignments | DWCU SHS Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -245,9 +246,32 @@
             width:100%; padding:11px 14px; border-radius:10px;
             border:1.5px solid #e2e8f0; font-family:'Afacad',sans-serif;
             font-size:0.92rem; color:#1e293b; background:white;
-            outline:none; transition:border-color 0.2s;
+            outline:none; transition:border-color 0.2s, box-shadow 0.2s;
         }
-        .clean-select:focus { border-color:#1e2f7a; }
+        .clean-select:focus { border-color:#1e2f7a; box-shadow: 0 0 0 3px rgba(30,47,122,0.1); }
+
+        /* ── Custom subject dropdown ── */
+        .custom-subject-dropdown { position: relative; width: 100%; font-family: 'Afacad', sans-serif; }
+        .custom-subject-trigger {
+            width: 100%; display: flex; align-items: center; justify-content: space-between;
+            background: #fafbff; border: 1.5px solid #e2e8f0; border-radius: 10px;
+            padding: 11px 14px; cursor: pointer; font-family: 'Afacad', sans-serif;
+            font-size: 0.92rem; color: #1e293b; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .custom-subject-trigger:hover { border-color: #94a3b8; }
+        .custom-subject-dropdown.open .custom-subject-trigger { border-color: #1e2f7a; box-shadow: 0 0 0 3px rgba(30,47,122,0.1); }
+        .subject-chevron { color: #1e2f7a; font-size: 0.72rem; transition: transform 0.2s; }
+        .custom-subject-dropdown.open .subject-chevron { transform: rotate(180deg); }
+        .custom-subject-menu {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+            background: white; border: 1.5px solid #e2e8f0; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(30,47,122,0.15); z-index: 50;
+            list-style: none; margin: 0; padding: 6px; max-height: 220px; overflow-y: auto;
+        }
+        .custom-subject-dropdown.open .custom-subject-menu { display: block; }
+        .custom-subject-option { padding: 9px 12px; border-radius: 8px; font-size: 0.9rem; color: #1e293b; cursor: pointer; transition: background 0.15s; }
+        .custom-subject-option:hover { background: #f1f3fb; }
+        .custom-subject-option.selected { background: #eef1fb; color: #1e2f7a; font-weight: 700; }
         .clean-drop-zone {
             border:2px dashed #cbd5e1; border-radius:14px; padding:36px 20px;
             text-align:center; margin-bottom:16px; cursor:pointer;
@@ -395,93 +419,110 @@
             </a>
         </header>
 
+        @php
+            $subjectMeta = [
+                'Capstone Research'   => ['tag' => 'tag-research', 'icon' => 'fa-microscope', 'accent' => 'accent-blue'],
+                'General Physics 2'   => ['tag' => 'tag-physics',  'icon' => 'fa-atom',        'accent' => 'accent-blue'],
+                'Basic Calculus'      => ['tag' => 'tag-calculus', 'icon' => 'fa-square-root-alt', 'accent' => 'accent-purple'],
+                'General Biology 2'   => ['tag' => 'tag-biology',  'icon' => 'fa-dna',         'accent' => 'accent-green'],
+            ];
+            $defaultMeta = ['tag' => 'tag-physics', 'icon' => 'fa-book', 'accent' => 'accent-blue'];
+            $pendingCount = $assignments->filter(fn ($a) => !$submissions->has($a->id))->count();
+            $urgentCount = $assignments->filter(fn ($a) => !$submissions->has($a->id) && now()->diffInDays($a->due_date, false) <= 3)->count();
+            $featured = $assignments->first();
+            $rest = $assignments->slice(1);
+        @endphp
+
         <div class="scroll-container">
 
             <!-- Summary bar -->
             <div class="assign-summary-bar">
                 <div class="assign-summary-left">
                     <i class="fas fa-tasks"></i>
-                    <span><strong>4</strong> active assignments &mdash; March 2026</span>
+                    <span><strong>{{ $assignments->count() }}</strong> active assignment{{ $assignments->count() === 1 ? '' : 's' }}</span>
                 </div>
                 <div class="assign-summary-right">
-                    <span class="assign-tag tag-urgent"><i class="fas fa-fire"></i> 1 Due Soon</span>
-                    <span class="assign-tag tag-pending">3 Pending</span>
+                    <span class="assign-tag tag-urgent"><i class="fas fa-fire"></i> {{ $urgentCount }} Due Soon</span>
+                    <span class="assign-tag tag-pending">{{ $pendingCount }} Pending</span>
                 </div>
             </div>
 
-            <!-- Featured assignment card -->
-            <div class="assign-featured-card">
-                <div class="assign-feat-decoration"></div>
-                <div class="assign-feat-header">
-                    <div class="assign-feat-icon">
-                        <i class="fas fa-microscope"></i>
-                    </div>
-                    <div class="assign-feat-meta">
-                        <span class="assign-subject-tag tag-research">Capstone Research</span>
-                        <h2>Research Proposal (Chapter 1&ndash;3)</h2>
-                        <p>Submit your Chapter 1&ndash;3 draft. Ensure your methodology matches the approved research title from the STEM coordinator.</p>
-                        <div class="assign-feat-attach">
-                            <i class="fas fa-paperclip"></i>
-                            <span>Research_Guidelines_2026.pdf</span>
+            @if ($assignments->isEmpty())
+                <p style="color:#94a3b8;text-align:center;padding:40px 0;">No assignments posted yet.</p>
+            @endif
+
+            @if ($featured)
+                @php
+                    $meta = $subjectMeta[$featured->subject] ?? $defaultMeta;
+                    $submitted = $submissions->has($featured->id);
+                    $isUrgent = now()->diffInDays($featured->due_date, false) <= 3;
+                @endphp
+                <!-- Featured assignment card -->
+                <div class="assign-featured-card">
+                    <div class="assign-feat-decoration"></div>
+                    <div class="assign-feat-header">
+                        <div class="assign-feat-icon">
+                            <i class="fas {{ $meta['icon'] }}"></i>
+                        </div>
+                        <div class="assign-feat-meta">
+                            <span class="assign-subject-tag {{ $meta['tag'] }}">{{ $featured->subject }}</span>
+                            <h2>{{ $featured->title }}</h2>
+                            @if ($featured->description)
+                                <p>{{ $featured->description }}</p>
+                            @endif
+                            @if ($featured->attachment_label)
+                                <div class="assign-feat-attach">
+                                    <i class="fas fa-paperclip"></i>
+                                    <span>{{ $featured->attachment_label }}</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
+                    <div class="assign-feat-footer">
+                        <span class="due-badge {{ $isUrgent ? 'due-urgent' : 'due-normal' }}"><i class="fas fa-fire"></i> Due: {{ $featured->due_date->format('F d, Y') }}</span>
+                        @if ($submitted)
+                            <button class="submit-btn" disabled style="opacity:0.75;cursor:default;">
+                                <i class="fas fa-check-circle"></i> Submitted
+                            </button>
+                        @else
+                            <button class="submit-btn" onclick="openSubmissionModal({{ $featured->id }}, '{{ addslashes($featured->subject) }}')">
+                                <i class="fas fa-upload"></i> Submit Work
+                            </button>
+                        @endif
+                    </div>
                 </div>
-                <div class="assign-feat-footer">
-                    <span class="due-badge due-urgent"><i class="fas fa-fire"></i> Due: March 20, 2026</span>
-                    <button class="submit-btn" onclick="openSubmissionModal('Capstone Research')">
-                        <i class="fas fa-upload"></i> Submit Manuscript
-                    </button>
-                </div>
-            </div>
+            @endif
 
             <!-- Small cards grid -->
             <div class="assign-cards-grid">
-
-                <!-- Physics -->
-                <div class="assign-small-card accent-blue">
-                    <div class="assign-card-top">
-                        <span class="assign-subject-tag tag-physics">Physics</span>
-                        <span class="due-badge due-urgent"><i class="fas fa-fire"></i> Mar 22</span>
+                @foreach ($rest as $a)
+                    @php
+                        $meta = $subjectMeta[$a->subject] ?? $defaultMeta;
+                        $submitted = $submissions->has($a->id);
+                        $isUrgent = now()->diffInDays($a->due_date, false) <= 3;
+                    @endphp
+                    <div class="assign-small-card {{ $meta['accent'] }}">
+                        <div class="assign-card-top">
+                            <span class="assign-subject-tag {{ $meta['tag'] }}">{{ $a->subject }}</span>
+                            <span class="due-badge {{ $isUrgent ? 'due-urgent' : 'due-normal' }}"><i class="fas {{ $isUrgent ? 'fa-fire' : 'fa-clock' }}"></i> {{ $a->due_date->format('M d') }}</span>
+                        </div>
+                        <h3>{{ $a->title }}</h3>
+                        @if ($a->description)
+                            <p>{{ $a->description }}</p>
+                        @endif
+                        <div class="assign-card-footer">
+                            @if ($submitted)
+                                <button class="submit-btn-sm" disabled style="opacity:0.75;cursor:default;background:#16a34a;">
+                                    <i class="fas fa-check-circle"></i> Submitted
+                                </button>
+                            @else
+                                <button class="submit-btn-sm" onclick="openSubmissionModal({{ $a->id }}, '{{ addslashes($a->subject) }}')">
+                                    <i class="fas fa-upload"></i> Submit Work
+                                </button>
+                            @endif
+                        </div>
                     </div>
-                    <h3>General Physics 2</h3>
-                    <p>Problem set on Gauss&rsquo;s Law and Electric Flux. Upload photos of your step-by-step solutions for full credit.</p>
-                    <div class="assign-card-footer">
-                        <button class="submit-btn-sm" onclick="openSubmissionModal('General Physics 2')">
-                            <i class="fas fa-upload"></i> Submit Work
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Calculus -->
-                <div class="assign-small-card accent-purple">
-                    <div class="assign-card-top">
-                        <span class="assign-subject-tag tag-calculus">Calculus</span>
-                        <span class="due-badge due-normal"><i class="fas fa-clock"></i> Mar 25</span>
-                    </div>
-                    <h3>Basic Calculus</h3>
-                    <p>Derivatives and Rules of Differentiation Practice. Complete the Quizizz practice and upload your final score.</p>
-                    <div class="assign-card-footer">
-                        <button class="submit-btn-sm" onclick="openSubmissionModal('Basic Calculus')">
-                            <i class="fas fa-upload"></i> Submit Work
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Biology -->
-                <div class="assign-small-card accent-green">
-                    <div class="assign-card-top">
-                        <span class="assign-subject-tag tag-biology">Biology</span>
-                        <span class="due-badge due-normal"><i class="fas fa-clock"></i> Mar 28</span>
-                    </div>
-                    <h3>General Biology 2</h3>
-                    <p>Create a digital poster explaining the Hardy-Weinberg Principle of Equilibrium in a specific population.</p>
-                    <div class="assign-card-footer">
-                        <button class="submit-btn-sm" onclick="openSubmissionModal('General Biology 2')">
-                            <i class="fas fa-upload"></i> Submit Work
-                        </button>
-                    </div>
-                </div>
-
+                @endforeach
             </div>
         </div>
     </main>
@@ -511,12 +552,19 @@
 
                 <div class="input-row">
                     <label>Select Subject</label>
-                    <select id="subject-select" class="clean-select">
-                        <option>Capstone Research</option>
-                        <option>General Physics 2</option>
-                        <option>Basic Calculus</option>
-                        <option>General Biology 2</option>
-                    </select>
+                    <input type="hidden" id="subject-select" value="Capstone Research">
+                    <div class="custom-subject-dropdown" id="subjectDropdown">
+                        <button type="button" class="custom-subject-trigger" id="subjectTrigger">
+                            <span id="subjectLabel">Capstone Research</span>
+                            <i class="fas fa-chevron-down subject-chevron"></i>
+                        </button>
+                        <ul class="custom-subject-menu" id="subjectMenu">
+                            <li class="custom-subject-option selected" data-value="Capstone Research">Capstone Research</li>
+                            <li class="custom-subject-option" data-value="General Physics 2">General Physics 2</li>
+                            <li class="custom-subject-option" data-value="Basic Calculus">Basic Calculus</li>
+                            <li class="custom-subject-option" data-value="General Biology 2">General Biology 2</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="clean-drop-zone" id="drop-zone">
@@ -584,14 +632,48 @@
     </div>
 
     <script>
+        window.SUBMIT_URL_TEMPLATE = "{{ route('shs.assignments.submit', ['assignment' => '__ID__']) }}";
+        var currentAssignmentId = null;
+        function csrfToken() {
+            var m = document.querySelector('meta[name="csrf-token"]');
+            return m ? m.content : '';
+        }
+
+        // Custom subject dropdown
+        var subjectDropdown    = document.getElementById('subjectDropdown');
+        var subjectTrigger     = document.getElementById('subjectTrigger');
+        var subjectMenu        = document.getElementById('subjectMenu');
+        var subjectLabel       = document.getElementById('subjectLabel');
+        var subjectHiddenInput = document.getElementById('subject-select');
+
+        function setSubject(subject) {
+            subjectHiddenInput.value = subject;
+            subjectLabel.textContent = subject;
+            subjectMenu.querySelectorAll('.custom-subject-option').forEach(function (o) {
+                o.classList.toggle('selected', o.dataset.value === subject);
+            });
+        }
+
+        subjectTrigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            subjectDropdown.classList.toggle('open');
+        });
+
+        subjectMenu.addEventListener('click', function (e) {
+            var opt = e.target.closest('.custom-subject-option');
+            if (!opt) return;
+            setSubject(opt.dataset.value);
+            subjectDropdown.classList.remove('open');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!subjectDropdown.contains(e.target)) subjectDropdown.classList.remove('open');
+        });
+
         // Modal open/close
-        window.openSubmissionModal = function(subject) {
-            if (subject) {
-                var sel = document.getElementById('subject-select');
-                Array.from(sel.options).forEach(function(opt) {
-                    opt.selected = opt.value === subject;
-                });
-            }
+        window.openSubmissionModal = function(assignmentId, subject) {
+            currentAssignmentId = assignmentId;
+            if (subject) setSubject(subject);
             document.getElementById('shsAssignModal').classList.add('active');
             document.body.classList.add('shs-assign-open');
         };
@@ -649,24 +731,39 @@
                 dropZone.style.borderColor = '#10b981';
             }
 
-            // Submit simulation
+            // Real submission
             submitBtn.addEventListener('click', function() {
                 if (!fileInput.files.length) {
                     alert('Please attach a file before submitting.');
                     return;
                 }
+                if (!currentAssignmentId) return;
+
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-                setTimeout(function() {
-                    alert('Success! Your assignment for ' + subjectSelect.value + ' has been turned in.');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit to Teacher';
-                    fileInput.value = '';
-                    fileLabel.innerText = 'Click to upload or drag file here';
-                    dropZone.style.borderColor = '#cbd5e1';
-                    document.getElementById('submission-comments').value = '';
-                    closeSubmissionModal();
-                }, 2000);
+
+                var formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('comments', document.getElementById('submission-comments').value);
+
+                var url = window.SUBMIT_URL_TEMPLATE.replace('__ID__', currentAssignmentId);
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+                    body: formData,
+                })
+                    .then(function (r) { if (!r.ok) return r.json().then(function (e) { return Promise.reject(e); }); return r.json(); })
+                    .then(function () {
+                        submitBtn.innerHTML = '<i class="fas fa-check"></i> Submitted!';
+                        setTimeout(function () { window.location.reload(); }, 900);
+                    })
+                    .catch(function (err) {
+                        var msg = (err && err.message) ? err.message : 'Error submitting assignment.';
+                        alert(msg);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit to Teacher';
+                    });
             });
 
             // Mobile nav

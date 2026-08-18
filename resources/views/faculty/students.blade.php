@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Student List | DWCU Faculty Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -164,6 +165,52 @@
         .sl-drop-item i { width: 16px; text-align: center; font-size: 0.8rem; }
         .sl-drop-item:hover { background: #eef1fb; color: #1e2f7a; }
 
+        /* ── Edit Student Modal ── */
+        .sl-modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(13,27,68,0.6);
+            backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;
+        }
+        .sl-modal-overlay.show { display: flex; }
+        .sl-modal-card {
+            background: white; width: 100%; max-width: 480px; border-radius: 18px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25); overflow: hidden;
+            animation: dropIn 0.2s ease-out;
+        }
+        .sl-modal-header {
+            background: linear-gradient(135deg, #0d1b44, #1e2f7a);
+            padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .sl-modal-header h3 { color: white; font-size: 1.05rem; font-weight: 700; margin: 0; font-family: 'Afacad', sans-serif; }
+        .sl-modal-close {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);
+            width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .sl-modal-close:hover { background: rgba(239,68,68,0.25); color: #ff6b6b; }
+        .sl-modal-body { padding: 22px 24px 24px; }
+        .sl-field-group { margin-bottom: 16px; }
+        .sl-field-group label { display: block; font-size: 0.82rem; font-weight: 700; color: #2d3a5e; margin-bottom: 6px; font-family: 'Afacad', sans-serif; }
+        .sl-field-group input {
+            width: 100%; padding: 11px 14px; border: 1.5px solid #e0e4f0; border-radius: 10px;
+            font-family: 'Afacad', sans-serif; font-size: 0.9rem; color: #0d1b44; background: #fafbff;
+            outline: none; box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .sl-field-group input:focus { border-color: #1e2f7a; box-shadow: 0 0 0 3px rgba(30,47,122,0.1); background: white; }
+        .sl-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .sl-modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 18px; border-top: 1px solid #f0f2f8; }
+        .sl-btn-cancel { background: #f5f7fb; color: #5a6685; border: 1.5px solid #e0e4f0; padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: 'Afacad', sans-serif; }
+        .sl-btn-cancel:hover { background: #e8ebf5; }
+        .sl-btn-save { background: linear-gradient(135deg,#0d1b44,#1e2f7a); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; font-family: 'Afacad', sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+        .sl-btn-save:hover { opacity: 0.92; }
+
+        /* ── Toast ── */
+        .sl-toast {
+            position: fixed; top: 26px; right: 26px; background: #1e2f7a; color: white;
+            padding: 13px 22px; border-radius: 12px; display: flex; align-items: center; gap: 10px;
+            font-family: 'Afacad', sans-serif; font-weight: 600; font-size: 0.9rem;
+            opacity: 0; transform: translateY(-10px); transition: all 0.3s; z-index: 9999; pointer-events: none;
+        }
+        .sl-toast.show { opacity: 1; transform: translateY(0); }
+
         /* ── Mobile responsive ── */
         @media (max-width: 768px) {
             .mgmt-header { flex-direction: column; align-items: flex-start; }
@@ -283,6 +330,21 @@
                             <span class="chip-dot dot-dropped"></span> Dropped
                         </button>
                     </div>
+
+                    <hr class="fp-divider">
+
+                    {{-- Subject Filter --}}
+                    <div class="fp-group">
+                        <p class="fp-label"><i class="fas fa-book-open"></i> Subject</p>
+                        <button class="filter-chip active" id="chip-subject-all" onclick="setSubjectFilter(null)">
+                            <span class="chip-dot dot-all"></span> All Subjects
+                        </button>
+                        @foreach ($allSubjects as $i => $subject)
+                            <button class="filter-chip" id="chip-subject-{{ $i }}" onclick="setSubjectFilter({{ $i }})">
+                                {{ $subject }}
+                            </button>
+                        @endforeach
+                    </div>
                 </aside>
 
                 {{-- Main table area --}}
@@ -314,6 +376,7 @@
                                     <th>Email</th>
                                     <th>Grade &amp; Section</th>
                                     <th>Status</th>
+                                    <th id="subjectGradeHeader">Subject Grade</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -365,39 +428,96 @@
     </div>
 </div>
 
+{{-- ── Edit Student Modal ── --}}
+<div class="sl-modal-overlay" id="editStudentModal">
+    <div class="sl-modal-card">
+        <div class="sl-modal-header">
+            <h3><i class="fas fa-user-pen" style="margin-right:8px;"></i> Edit Student Details</h3>
+            <button class="sl-modal-close" id="closeEditModal" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sl-modal-body">
+            <form id="editStudentForm">
+                <input type="hidden" id="editStudentId">
+                <div class="sl-field-group">
+                    <label for="editName">Full Name</label>
+                    <input type="text" id="editName" required>
+                </div>
+                <div class="sl-field-group">
+                    <label for="editEmail">Email Address</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="sl-field-row">
+                    <div class="sl-field-group">
+                        <label for="editGrade">Grade Level</label>
+                        <input type="text" id="editGrade" placeholder="e.g. Grade 9" required>
+                    </div>
+                    <div class="sl-field-group">
+                        <label for="editSection">Section / Strand</label>
+                        <input type="text" id="editSection" placeholder="e.g. Innovators" required>
+                    </div>
+                </div>
+                <div class="sl-modal-footer">
+                    <button type="button" class="sl-btn-cancel" id="cancelEditModal">Cancel</button>
+                    <button type="submit" class="sl-btn-save" id="saveEditBtn"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Toast --}}
+<div class="sl-toast" id="slToast"><i class="fas fa-check-circle"></i> <span id="slToastMsg"></span></div>
+
 @php
     $studentsJson = $students->map(function ($s) {
         $grade = (int) preg_replace('/[^0-9]/', '', $s->grade_level ?? '0');
         return [
-            'id'        => $s->id,
-            'studentId' => $s->student_id,
-            'name'      => $s->name,
-            'email'     => $s->email ?? '',
-            'grade'     => $grade,
-            'section'   => $s->section ?? '',
-            'status'    => $s->status ?? 'active',
+            'id'         => $s->id,
+            'studentId'  => $s->student_id,
+            'name'       => $s->name,
+            'email'      => $s->email ?? '',
+            'grade'      => $grade,
+            'gradeLevel' => $s->grade_level ?? '',
+            'section'    => $s->section ?? '',
+            'status'     => $s->status ?? 'active',
         ];
     })->values();
 @endphp
 <script type="application/json" id="students-data">{!! json_encode($studentsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
+<script type="application/json" id="subject-grades-data">{!! json_encode($subjectGrades, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
+<script type="application/json" id="all-subjects-data">{!! json_encode(array_values($allSubjects), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
 <script>
 window.reportRoutes = {
     base: "{{ url('faculty/students') }}",
 };
 
-const STUDENTS = JSON.parse(document.getElementById('students-data').textContent);
+function csrfToken() {
+    const m = document.querySelector('meta[name="csrf-token"]');
+    return m ? m.content : '';
+}
+
+function showToast(msg) {
+    const t = document.getElementById('slToast');
+    document.getElementById('slToastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+let STUDENTS = JSON.parse(document.getElementById('students-data').textContent);
+const SUBJECT_GRADES = JSON.parse(document.getElementById('subject-grades-data').textContent);
+const ALL_SUBJECTS   = JSON.parse(document.getElementById('all-subjects-data').textContent);
 
 // ── State ──────────────────────────────────────────────────────
 function getRowsPerPage() { return window.innerWidth <= 768 ? 5 : 10; }
 let currentPage   = 1;
 let openDropId    = null;
-let filterState   = { grade: null, status: null };
+let filterState   = { grade: null, status: null, subject: null };
 
 const STATUS_CLASSES = { active: 'badge-active', dropped: 'badge-dropped' };
 
 // ── Filter badge ───────────────────────────────────────────────
 function updateFilterBadge() {
-    const count = (filterState.grade !== null ? 1 : 0) + (filterState.status !== null ? 1 : 0);
+    const count = (filterState.grade !== null ? 1 : 0) + (filterState.status !== null ? 1 : 0) + (filterState.subject !== null ? 1 : 0);
     const badge = document.getElementById('filter-active-badge');
     if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'inline' : 'none'; }
 }
@@ -416,14 +536,23 @@ function setStatusFilter(status) {
     currentPage = 1; updateFilterBadge(); renderTable();
 }
 
+function setSubjectFilter(idx) {
+    filterState.subject = idx === null ? null : ALL_SUBJECTS[idx];
+    document.querySelectorAll('[id^="chip-subject-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById(idx === null ? 'chip-subject-all' : 'chip-subject-' + idx).classList.add('active');
+    document.getElementById('subjectGradeHeader').textContent = filterState.subject ? filterState.subject + ' Grade' : 'Subject Grade';
+    currentPage = 1; updateFilterBadge(); renderTable();
+}
+
 // ── Filter & render ────────────────────────────────────────────
 function getFiltered() {
     const q = document.getElementById('tableSearch').value.toLowerCase();
     return STUDENTS.filter(s =>
         (s.studentId.toLowerCase().includes(q) || s.name.toLowerCase().includes(q) ||
          s.email.toLowerCase().includes(q) || s.section.toLowerCase().includes(q)) &&
-        (filterState.grade  === null || s.grade  === filterState.grade) &&
-        (filterState.status === null || s.status === filterState.status)
+        (filterState.grade   === null || s.grade  === filterState.grade) &&
+        (filterState.status  === null || s.status === filterState.status) &&
+        (filterState.subject === null || (SUBJECT_GRADES[s.id] && filterState.subject in SUBJECT_GRADES[s.id]))
     );
 }
 
@@ -438,18 +567,28 @@ function renderTable() {
     tbody.innerHTML = '';
 
     if (slice.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#8892b0;font-weight:600;font-family:'Afacad',sans-serif;">No students found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#8892b0;font-weight:600;font-family:'Afacad',sans-serif;">No students found.</td></tr>`;
     } else {
         slice.forEach(s => {
             const label = s.status.charAt(0).toUpperCase() + s.status.slice(1);
             const badge = STATUS_CLASSES[s.status] || STATUS_CLASSES.active;
-            const tr    = document.createElement('tr');
+
+            let subjectGradeCell = '<span style="color:#b8c0d4;">Select a subject</span>';
+            if (filterState.subject !== null) {
+                const val = SUBJECT_GRADES[s.id] ? SUBJECT_GRADES[s.id][filterState.subject] : undefined;
+                subjectGradeCell = (val === null || val === undefined)
+                    ? '<span style="color:#b8c0d4;">No grade yet</span>'
+                    : `<span class="${val >= 75 ? 'badge-active' : 'badge-dropped'}">${val}</span>`;
+            }
+
+            const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="td-cell">${s.studentId}</td>
                 <td class="td-cell">${s.name}</td>
                 <td class="td-cell"><a href="mailto:${s.email}" class="email-cell">${s.email}</a></td>
                 <td class="td-cell">Grade ${s.grade}${s.section ? ' – ' + s.section : ''}</td>
                 <td class="td-cell"><span class="${badge}">${label}</span></td>
+                <td class="td-cell">${subjectGradeCell}</td>
                 <td class="td-cell">
                     <button class="action-trigger-btn" onclick="toggleReportDropdown(event,${s.id})">
                         <i class="fas fa-file-export"></i> Reports <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i>
@@ -485,6 +624,7 @@ function toggleReportDropdown(event, sid) {
     dd.style.top  = (rect.bottom + 4) + 'px';
     dd.style.left = rect.left + 'px';
     dd.innerHTML  = `
+        <button class="sl-drop-item" onclick="openEditModal(${sid})"><i class="fas fa-user-pen"></i> Edit Details</button>
         <button class="sl-drop-item" onclick="generateReport(${sid},'sf9')"><i class="fas fa-file-lines"></i> Generate SF9</button>
         <button class="sl-drop-item" onclick="generateReport(${sid},'sf10')"><i class="fas fa-file-contract"></i> Generate SF10</button>`;
     document.body.appendChild(dd);
@@ -500,6 +640,75 @@ function generateReport(sid, type) {
     closeReportDropdown();
     window.open(window.reportRoutes.base + '/' + sid + '/' + type, '_blank');
 }
+
+// ── Edit Student Modal ───────────────────────────────────────────
+const editModal = document.getElementById('editStudentModal');
+
+function openEditModal(sid) {
+    closeReportDropdown();
+    const s = STUDENTS.find(x => x.id === sid);
+    if (!s) return;
+    document.getElementById('editStudentId').value = s.id;
+    document.getElementById('editName').value      = s.name;
+    document.getElementById('editEmail').value     = s.email;
+    document.getElementById('editGrade').value      = s.gradeLevel;
+    document.getElementById('editSection').value    = s.section;
+    editModal.classList.add('show');
+}
+
+function closeEditModal() {
+    editModal.classList.remove('show');
+}
+
+document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
+document.getElementById('cancelEditModal').addEventListener('click', closeEditModal);
+editModal.addEventListener('click', e => { if (e.target === editModal) closeEditModal(); });
+
+document.getElementById('editStudentForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const sid = document.getElementById('editStudentId').value;
+    const payload = {
+        name:        document.getElementById('editName').value.trim(),
+        email:       document.getElementById('editEmail').value.trim(),
+        grade_level: document.getElementById('editGrade').value.trim(),
+        section:     document.getElementById('editSection').value.trim(),
+    };
+
+    const btn = document.getElementById('saveEditBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    fetch(window.reportRoutes.base + '/' + sid, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+        body: JSON.stringify(payload),
+    })
+        .then(r => { if (!r.ok) return r.json().then(err => Promise.reject(err)); return r.json(); })
+        .then(data => {
+            const idx = STUDENTS.findIndex(x => x.id === Number(sid));
+            if (idx !== -1) {
+                const grade = parseInt((data.student.grade_level || '0').replace(/[^0-9]/g, '')) || 0;
+                STUDENTS[idx] = {
+                    ...STUDENTS[idx],
+                    name: data.student.name,
+                    email: data.student.email,
+                    gradeLevel: data.student.grade_level,
+                    grade: grade,
+                    section: data.student.section,
+                };
+            }
+            closeEditModal();
+            renderTable();
+            showToast('Student details updated.');
+        })
+        .catch(err => {
+            alert(err && err.message ? err.message : 'Error updating student.');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+        });
+});
 
 // ── Init ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {

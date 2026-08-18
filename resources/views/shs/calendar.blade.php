@@ -283,11 +283,11 @@
         <div class="cal-summary-bar">
             <div class="cal-summary-left">
                 <i class="fas fa-calendar-alt"></i>
-                <span><strong>March 2026</strong> &mdash; Academic Calendar</span>
+                <span id="summary-month"><strong>Loading&hellip;</strong></span>
             </div>
             <div class="cal-summary-right">
-                <span class="cal-tag tag-event"><i class="fas fa-circle"></i> 4 Events</span>
-                <span class="cal-tag tag-deadline"><i class="fas fa-flag"></i> 4 Deadlines</span>
+                <span class="cal-tag tag-event" id="tag-events">0 Events</span>
+                <span class="cal-tag tag-deadline" id="tag-deadlines">0 Deadlines</span>
             </div>
         </div>
 
@@ -301,8 +301,8 @@
                         <i class="fas fa-chevron-left"></i>
                     </button>
                     <div class="cal-month-title">
-                        <h2 id="current-month">March 2026</h2>
-                        <span>1st Semester</span>
+                        <h2 id="current-month">&nbsp;</h2>
+                        <span>Academic Calendar</span>
                     </div>
                     <button class="cal-nav-btn" id="nextMonth">
                         <i class="fas fa-chevron-right"></i>
@@ -323,10 +323,9 @@
                 </div>
 
                 <div class="cal-legend">
-                    <span class="legend-item"><span class="legend-dot dot-research"></span> Research</span>
-                    <span class="legend-item"><span class="legend-dot dot-physics"></span> Physics</span>
-                    <span class="legend-item"><span class="legend-dot dot-math"></span> Calculus</span>
-                    <span class="legend-item"><span class="legend-dot dot-school"></span> School Event</span>
+                    <span class="legend-item"><span class="legend-dot dot-research"></span> Quiz</span>
+                    <span class="legend-item"><span class="legend-dot dot-physics"></span> Assignment</span>
+                    <span class="legend-item"><span class="legend-dot dot-math"></span> Examination</span>
                 </div>
             </div>
 
@@ -339,56 +338,10 @@
                         </div>
                         <div>
                             <h3>Upcoming Deadlines</h3>
-                            <p>March 2026</p>
+                            <p id="deadlines-sub">&nbsp;</p>
                         </div>
                     </div>
-                    <div class="cal-deadlines-list">
-
-                        <div class="cal-deadline-item border-research">
-                            <div class="cal-date-box">
-                                <span class="cal-date-num">10</span>
-                                <span class="cal-date-mon">MAR</span>
-                            </div>
-                            <div class="cal-deadline-info">
-                                <h4>Practical Research 2</h4>
-                                <p><i class="fas fa-edit"></i> Mid-Unit Quiz (G-Form)</p>
-                            </div>
-                        </div>
-
-                        <div class="cal-deadline-item border-physics">
-                            <div class="cal-date-box">
-                                <span class="cal-date-num">22</span>
-                                <span class="cal-date-mon">MAR</span>
-                            </div>
-                            <div class="cal-deadline-info">
-                                <h4>General Physics 2</h4>
-                                <p><i class="fas fa-tasks"></i> Gauss's Law Problem Set</p>
-                            </div>
-                        </div>
-
-                        <div class="cal-deadline-item border-math">
-                            <div class="cal-date-box">
-                                <span class="cal-date-num">25</span>
-                                <span class="cal-date-mon">MAR</span>
-                            </div>
-                            <div class="cal-deadline-info">
-                                <h4>Basic Calculus</h4>
-                                <p><i class="fas fa-tasks"></i> Differentiation Practice</p>
-                            </div>
-                        </div>
-
-                        <div class="cal-deadline-item border-bio">
-                            <div class="cal-date-box">
-                                <span class="cal-date-num">28</span>
-                                <span class="cal-date-mon">MAR</span>
-                            </div>
-                            <div class="cal-deadline-info">
-                                <h4>Biology 2</h4>
-                                <p><i class="fas fa-tasks"></i> Hardy-Weinberg Poster</p>
-                            </div>
-                        </div>
-
-                    </div>
+                    <div class="cal-deadlines-list" id="deadlines-list"></div>
                 </div>
             </div>
 
@@ -423,57 +376,125 @@
     </div>
 </div>
 
+@php
+    $eventsJson = $events->map(fn ($e) => [
+        'id'          => $e->id,
+        'title'       => $e->title,
+        'description' => $e->description,
+        'date'        => $e->event_date->format('Y-m-d'),
+        'category'    => $e->category,
+        'section'     => $e->section,
+    ])->values();
+@endphp
+<script type="application/json" id="events-data">{!! json_encode($eventsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    window.EVENTS_DATA = JSON.parse(document.getElementById('events-data').textContent);
+</script>
+<script>
+    const CAT_DOT    = { 'Quiz': 'dot-research', 'Assignment': 'dot-physics', 'Examination': 'dot-math' };
+    const CAT_BORDER = { 'Quiz': 'border-research', 'Assignment': 'border-physics', 'Examination': 'border-math' };
+    const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    let calYear  = today.getFullYear();
+    let calMonth = today.getMonth();
+
+    function parseEventDate(str) {
+        const p = str.split('-');
+        return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+    }
+
+    function generateCalendar() {
+        document.getElementById('current-month').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+        document.getElementById('summary-month').innerHTML = '<strong>' + MONTH_NAMES[calMonth] + ' ' + calYear + '</strong> &mdash; Academic Calendar';
+
         const daysContainer = document.getElementById('calendar-days');
-        const monthYearText = document.getElementById('current-month');
+        daysContainer.innerHTML = '';
 
-        const year  = 2026;
-        const month = 2;    // March (0-indexed)
-        const today = 22;   // March 22, 2026
+        const firstDay    = new Date(calYear, calMonth, 1).getDay();
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
 
-        const events = {
-            8:  { type: 'school'   },
-            10: { type: 'research' },
-            12: { type: 'school'   },
-            20: { type: 'research' },
-            22: { type: 'physics'  },
-            25: { type: 'math'     },
-            28: { type: 'math'     }
-        };
+        const monthEvents = window.EVENTS_DATA.filter(e => {
+            const d = parseEventDate(e.date);
+            return d.getFullYear() === calYear && d.getMonth() === calMonth;
+        });
+        const eventsByDay = {};
+        monthEvents.forEach(e => {
+            const d = parseEventDate(e.date).getDate();
+            if (!eventsByDay[d]) eventsByDay[d] = [];
+            eventsByDay[d].push(e);
+        });
 
-        function generateCalendar() {
-            daysContainer.innerHTML = '';
+        document.getElementById('tag-events').innerHTML = '<i class="fas fa-circle"></i> ' + monthEvents.length + ' Event' + (monthEvents.length === 1 ? '' : 's');
 
-            const firstDay    = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let i = 0; i < firstDay; i++) {
-                const empty = document.createElement('div');
-                empty.classList.add('calendar-day-box', 'empty');
-                daysContainer.appendChild(empty);
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.classList.add('calendar-day-box');
-
-                if (day === today) dayDiv.classList.add('current-day');
-
-                dayDiv.innerHTML = `<span>${day}</span>`;
-
-                if (events[day]) {
-                    const dot = document.createElement('div');
-                    dot.classList.add('event-dot', `dot-${events[day].type}`);
-                    dayDiv.appendChild(dot);
-                }
-
-                daysContainer.appendChild(dayDiv);
-            }
+        for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement('div');
+            empty.classList.add('calendar-day-box', 'empty');
+            daysContainer.appendChild(empty);
         }
 
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.classList.add('calendar-day-box');
+
+            const isToday = calYear === today.getFullYear() && calMonth === today.getMonth() && day === today.getDate();
+            if (isToday) dayDiv.classList.add('current-day');
+
+            dayDiv.innerHTML = `<span>${day}</span>`;
+
+            if (eventsByDay[day]) {
+                const dot = document.createElement('div');
+                dot.classList.add('event-dot', CAT_DOT[eventsByDay[day][0].category] || 'dot-research');
+                dayDiv.appendChild(dot);
+                dayDiv.title = eventsByDay[day].map(e => e.title).join(', ');
+            }
+
+            daysContainer.appendChild(dayDiv);
+        }
+
+        renderDeadlines();
+    }
+
+    function renderDeadlines() {
+        const list = document.getElementById('deadlines-list');
+        const upcoming = window.EVENTS_DATA
+            .filter(e => parseEventDate(e.date) >= today)
+            .sort((a, b) => parseEventDate(a.date) - parseEventDate(b.date))
+            .slice(0, 6);
+
+        document.getElementById('tag-deadlines').innerHTML = '<i class="fas fa-flag"></i> ' + upcoming.length + ' Deadline' + (upcoming.length === 1 ? '' : 's');
+        document.getElementById('deadlines-sub').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+
+        if (upcoming.length === 0) {
+            list.innerHTML = '<p style="color:#94a3b8;font-size:0.82rem;text-align:center;padding:20px 0;">No upcoming deadlines.</p>';
+            return;
+        }
+
+        list.innerHTML = upcoming.map(e => {
+            const d = parseEventDate(e.date);
+            return `<div class="cal-deadline-item ${CAT_BORDER[e.category] || 'border-research'}">
+                <div class="cal-date-box">
+                    <span class="cal-date-num">${d.getDate()}</span>
+                    <span class="cal-date-mon">${MONTH_NAMES[d.getMonth()].slice(0,3).toUpperCase()}</span>
+                </div>
+                <div class="cal-deadline-info">
+                    <h4>${e.title}</h4>
+                    <p><i class="fas fa-users"></i> ${e.section || 'All Sections'} &middot; ${e.category}</p>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
         generateCalendar();
     });
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+        generateCalendar();
+    });
+
+    document.addEventListener('DOMContentLoaded', generateCalendar);
 
     (function () {
         var hamburgerBtn = document.getElementById('hamburger-btn');

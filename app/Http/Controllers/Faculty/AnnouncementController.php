@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Faculty;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AuditLog;
+use App\Models\Event;
 use App\Models\Faculty;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,8 @@ class AnnouncementController extends Controller
     public function index()
     {
         $announcements = Announcement::orderByDesc('target_date')->get();
-        return view('faculty.announcements', compact('announcements'));
+        $events = Event::where('event_date', '>=', now()->toDateString())->orderBy('event_date')->limit(20)->get();
+        return view('faculty.announcements', compact('announcements', 'events'));
     }
 
     public function store(Request $request)

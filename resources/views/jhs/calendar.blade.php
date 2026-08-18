@@ -328,12 +328,12 @@
             <div class="cal-summary-bar">
                 <div class="cal-summary-left">
                     <i class="fas fa-calendar-alt"></i>
-                    <span><strong>March 2026</strong> &mdash; A.Y. 2025&ndash;2026</span>
+                    <span id="summary-month"><strong>Loading&hellip;</strong></span>
                 </div>
                 <div class="cal-summary-right">
-                    <span class="cal-summary-chip chip-science"><i class="fas fa-flask"></i> Science</span>
-                    <span class="cal-summary-chip chip-math"><i class="fas fa-calculator"></i> Math</span>
-                    <span class="cal-summary-chip chip-english"><i class="fas fa-book"></i> English</span>
+                    <span class="cal-summary-chip chip-science"><i class="fas fa-lightbulb"></i> Quiz</span>
+                    <span class="cal-summary-chip chip-math"><i class="fas fa-tasks"></i> Assignment</span>
+                    <span class="cal-summary-chip chip-english"><i class="fas fa-clipboard-list"></i> Examination</span>
                 </div>
             </div>
 
@@ -348,7 +348,7 @@
                         </button>
                         <div class="cal-month-display">
                             <div class="cal-month-icon"><i class="fas fa-calendar-alt"></i></div>
-                            <h2 id="current-month">March 2026</h2>
+                            <h2 id="current-month">&nbsp;</h2>
                         </div>
                         <button class="cal-nav-btn" id="next-month" aria-label="Next month">
                             <i class="fas fa-chevron-right"></i>
@@ -369,13 +369,13 @@
                     <!-- Legend -->
                     <div class="cal-legend">
                         <span class="legend-item">
-                            <span class="legend-dot dot-science"></span> Science Quiz
+                            <span class="legend-dot dot-science"></span> Quiz
                         </span>
                         <span class="legend-item">
-                            <span class="legend-dot dot-math"></span> Math Assignment
+                            <span class="legend-dot dot-math"></span> Assignment
                         </span>
                         <span class="legend-item">
-                            <span class="legend-dot dot-english"></span> English Essay
+                            <span class="legend-dot dot-english"></span> Examination
                         </span>
                     </div>
                 </section>
@@ -388,64 +388,11 @@
                         </div>
                         <div>
                             <h3>Upcoming Deadlines</h3>
-                            <p>3 activities this month</p>
+                            <p id="deadlines-count">&nbsp;</p>
                         </div>
                     </div>
 
-                    <div class="deadline-list">
-
-                        <div class="deadline-item science-border">
-                            <div class="deadline-icon-circle science-circle">
-                                <i class="fas fa-flask"></i>
-                            </div>
-                            <div class="deadline-body">
-                                <div class="deadline-top-row">
-                                    <span class="dl-subject-badge badge-science">Science</span>
-                                    <span class="dl-type-badge type-quiz">Quiz</span>
-                                </div>
-                                <h4>Periodic Table Unit 3</h4>
-                                <p>Online via Google Form</p>
-                            </div>
-                            <div class="deadline-date-col">
-                                <span class="deadline-date-badge urgent">Mar 10</span>
-                            </div>
-                        </div>
-
-                        <div class="deadline-item math-border">
-                            <div class="deadline-icon-circle math-circle">
-                                <i class="fas fa-calculator"></i>
-                            </div>
-                            <div class="deadline-body">
-                                <div class="deadline-top-row">
-                                    <span class="dl-subject-badge badge-math">Math</span>
-                                    <span class="dl-type-badge type-asst">Assignment</span>
-                                </div>
-                                <h4>Algebraic Expressions</h4>
-                                <p>Show all solutions</p>
-                            </div>
-                            <div class="deadline-date-col">
-                                <span class="deadline-date-badge normal">Mar 12</span>
-                            </div>
-                        </div>
-
-                        <div class="deadline-item english-border">
-                            <div class="deadline-icon-circle english-circle">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <div class="deadline-body">
-                                <div class="deadline-top-row">
-                                    <span class="dl-subject-badge badge-english">English</span>
-                                    <span class="dl-type-badge type-asst">Assignment</span>
-                                </div>
-                                <h4>Argumentative Essay Draft</h4>
-                                <p>Include proper citations</p>
-                            </div>
-                            <div class="deadline-date-col">
-                                <span class="deadline-date-badge normal">Mar 15</span>
-                            </div>
-                        </div>
-
-                    </div>
+                    <div class="deadline-list" id="deadline-list"></div>
                 </aside>
 
             </div>
@@ -479,36 +426,134 @@
         </div>
     </div>
 
+    @php
+        $eventsJson = $events->map(fn ($e) => [
+            'id'          => $e->id,
+            'title'       => $e->title,
+            'description' => $e->description,
+            'date'        => $e->event_date->format('Y-m-d'),
+            'category'    => $e->category,
+            'section'     => $e->section,
+        ])->values();
+    @endphp
+    <script type="application/json" id="events-data">{!! json_encode($eventsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
     <script>
-        // Calendar — render March 2026 (March 1 = Sunday, 31 days)
-        document.addEventListener('DOMContentLoaded', function () {
-            var daysContainer = document.getElementById('calendar-days');
-            var totalDays = 31;
-            var events = { 10: 'dot-science', 12: 'dot-math', 15: 'dot-english' };
-            var mockToday = 22;
+        window.EVENTS_DATA = JSON.parse(document.getElementById('events-data').textContent);
+    </script>
+    <script>
+        var CAT_DOT   = { 'Quiz': 'dot-science', 'Assignment': 'dot-math', 'Examination': 'dot-english' };
+        var CAT_BADGE = { 'Quiz': 'badge-science', 'Assignment': 'badge-math', 'Examination': 'badge-english' };
+        var CAT_ICON_CLASS = { 'Quiz': 'science-circle', 'Assignment': 'math-circle', 'Examination': 'english-circle' };
+        var CAT_ICON  = { 'Quiz': 'fa-lightbulb', 'Assignment': 'fa-tasks', 'Examination': 'fa-clipboard-list' };
+        var CAT_BORDER = { 'Quiz': 'science-border', 'Assignment': 'math-border', 'Examination': 'english-border' };
+        var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-            for (var i = 1; i <= totalDays; i++) {
+        var today = new Date(); today.setHours(0,0,0,0);
+        var calYear  = today.getFullYear();
+        var calMonth = today.getMonth();
+
+        function parseEventDate(str) {
+            var p = str.split('-');
+            return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+        }
+
+        function renderCalendar() {
+            document.getElementById('current-month').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+            document.getElementById('summary-month').innerHTML = '<strong>' + MONTH_NAMES[calMonth] + ' ' + calYear + '</strong> &mdash; A.Y. 2025&ndash;2026';
+
+            var daysContainer = document.getElementById('calendar-days');
+            daysContainer.innerHTML = '';
+            var firstDay    = new Date(calYear, calMonth, 1).getDay();
+            var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+            var monthEvents = window.EVENTS_DATA.filter(function (e) {
+                var d = parseEventDate(e.date);
+                return d.getFullYear() === calYear && d.getMonth() === calMonth;
+            });
+            var eventsByDay = {};
+            monthEvents.forEach(function (e) {
+                var d = parseEventDate(e.date).getDate();
+                if (!eventsByDay[d]) eventsByDay[d] = [];
+                eventsByDay[d].push(e);
+            });
+
+            document.getElementById('deadlines-count').textContent = monthEvents.length + (monthEvents.length === 1 ? ' activity this month' : ' activities this month');
+
+            for (var i = 0; i < firstDay; i++) {
+                var empty = document.createElement('div');
+                daysContainer.appendChild(empty);
+            }
+
+            for (var day = 1; day <= daysInMonth; day++) {
                 var daySquare = document.createElement('div');
                 daySquare.classList.add('cal-day');
 
-                if (i === mockToday) {
-                    daySquare.classList.add('today');
-                }
+                var isToday = calYear === today.getFullYear() && calMonth === today.getMonth() && day === today.getDate();
+                if (isToday) daySquare.classList.add('today');
 
                 var span = document.createElement('span');
-                span.textContent = i;
+                span.textContent = day;
                 daySquare.appendChild(span);
 
-                if (events[i]) {
+                if (eventsByDay[day]) {
                     daySquare.classList.add('has-event');
                     var dot = document.createElement('div');
-                    dot.classList.add('event-dot', events[i]);
+                    dot.classList.add('event-dot', CAT_DOT[eventsByDay[day][0].category] || 'dot-science');
                     daySquare.appendChild(dot);
+                    daySquare.title = eventsByDay[day].map(function (e) { return e.title; }).join(', ');
                 }
 
                 daysContainer.appendChild(daySquare);
             }
+
+            renderDeadlines();
+        }
+
+        function renderDeadlines() {
+            var list = document.getElementById('deadline-list');
+            var upcoming = window.EVENTS_DATA
+                .filter(function (e) { return parseEventDate(e.date) >= today; })
+                .sort(function (a, b) { return parseEventDate(a.date) - parseEventDate(b.date); })
+                .slice(0, 6);
+
+            if (upcoming.length === 0) {
+                list.innerHTML = '<p style="color:#94a3b8;font-size:0.85rem;text-align:center;padding:20px 0;">No upcoming deadlines.</p>';
+                return;
+            }
+
+            list.innerHTML = upcoming.map(function (e) {
+                var d = parseEventDate(e.date);
+                var diffDays = Math.round((d - today) / 86400000);
+                var urgent = diffDays <= 3;
+                var dateLabel = MONTH_NAMES[d.getMonth()].slice(0,3) + ' ' + d.getDate();
+                return '<div class="deadline-item ' + (CAT_BORDER[e.category] || 'science-border') + '">' +
+                    '<div class="deadline-icon-circle ' + (CAT_ICON_CLASS[e.category] || 'science-circle') + '">' +
+                        '<i class="fas ' + (CAT_ICON[e.category] || 'fa-calendar') + '"></i>' +
+                    '</div>' +
+                    '<div class="deadline-body">' +
+                        '<div class="deadline-top-row">' +
+                            '<span class="dl-subject-badge ' + (CAT_BADGE[e.category] || 'badge-science') + '">' + e.category + '</span>' +
+                        '</div>' +
+                        '<h4>' + e.title + '</h4>' +
+                        '<p>' + (e.section || 'All Sections') + (e.description ? ' — ' + e.description : '') + '</p>' +
+                    '</div>' +
+                    '<div class="deadline-date-col">' +
+                        '<span class="deadline-date-badge ' + (urgent ? 'urgent' : 'normal') + '">' + dateLabel + '</span>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        document.getElementById('prev-month').addEventListener('click', function () {
+            calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderCalendar();
         });
+        document.getElementById('next-month').addEventListener('click', function () {
+            calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+            renderCalendar();
+        });
+
+        document.addEventListener('DOMContentLoaded', renderCalendar);
 
         // Hamburger menu
         (function () {

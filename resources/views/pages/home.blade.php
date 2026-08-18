@@ -26,7 +26,7 @@
                          class="w-full h-[220px] md:h-[350px] object-cover rounded-[16px] md:rounded-[20px] shadow-[0_10px_25px_rgba(0,0,0,0.15)]" />
                 </div>
                 <div class="flex-1 w-full">
-                    <h3 class="text-[#1e2f7a] text-[22px] md:text-[32px] font-extrabold mb-4">Divine Word College of Urdaneta</h3>
+                    <h3 class="text-[#1e2f7a] text-[22px] md:text-[32px] font-extrabold mb-4">Divine Word College of Urdaneta Inc.</h3>
                     <p class="text-base md:text-[19px] font-medium leading-[1.8] text-[#222]">
                         Founded in 1967 by the Divine Word Missionaries, Divine Word College of Urdaneta is a Catholic institution dedicated to forming future learners through quality education, strong values, and community engagement.
                     </p>

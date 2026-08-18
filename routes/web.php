@@ -19,16 +19,22 @@ use App\Http\Controllers\Faculty\QuizController as FacultyQuizController;
 use App\Http\Controllers\Faculty\SubmissionController as FacultySubmissionController;
 use App\Http\Controllers\Faculty\AnnouncementController as FacultyAnnouncementController;
 use App\Http\Controllers\Faculty\LogController as FacultyLogController;
+use App\Http\Controllers\Faculty\CalendarController as FacultyCalendarController;
+use App\Http\Controllers\Faculty\EventController as FacultyEventController;
 use App\Http\Controllers\JHS\JHSAuthController;
 use App\Http\Controllers\JHS\JHSProfileController;
 use App\Http\Controllers\JHS\QuizController as JHSQuizController;
 use App\Http\Controllers\JHS\AnnouncementController as JHSAnnouncementController;
 use App\Http\Controllers\JHS\LogController as JHSLogController;
+use App\Http\Controllers\JHS\CalendarController as JHSCalendarController;
+use App\Http\Controllers\JHS\AssignmentController as JHSAssignmentController;
 use App\Http\Controllers\SHS\SHSAuthController;
 use App\Http\Controllers\SHS\SHSProfileController;
 use App\Http\Controllers\SHS\QuizController as SHSQuizController;
 use App\Http\Controllers\SHS\AnnouncementController as SHSAnnouncementController;
 use App\Http\Controllers\SHS\LogController as SHSLogController;
+use App\Http\Controllers\SHS\CalendarController as SHSCalendarController;
+use App\Http\Controllers\SHS\AssignmentController as SHSAssignmentController;
 
 // Homepage
 Route::get('/', function () {
@@ -65,9 +71,8 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
 
     Route::get('/announcement', [JHSAnnouncementController::class, 'index'])->name('announcement');
 
-    Route::get('/assignments', function () {
-        return view('jhs.assignments');
-    })->name('assignments');
+    Route::get('/assignments',                     [JHSAssignmentController::class, 'index'])->name('assignments');
+    Route::post('/assignments/{assignment}/submit', [JHSAssignmentController::class, 'submit'])->name('assignments.submit');
 
     Route::get('/quizzes',              [JHSQuizController::class, 'index'])->name('quizzes');
     Route::get('/quizzes/{quiz}',       [JHSQuizController::class, 'show'])->name('quizzes.take');
@@ -77,9 +82,7 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
         return view('jhs.gradebook');
     })->name('gradebook');
 
-    Route::get('/calendar', function () {
-        return view('jhs.calendar');
-    })->name('calendar');
+    Route::get('/calendar', [JHSCalendarController::class, 'index'])->name('calendar');
 
     Route::get('/logs', [JHSLogController::class, 'index'])->name('logs');
 });
@@ -100,12 +103,13 @@ Route::middleware('shs')->prefix('shs')->name('shs.')->group(function () {
     Route::patch('/profile/password', [SHSProfileController::class, 'updatePassword'])->name('profile.password');
 
     Route::get('/announcement', [SHSAnnouncementController::class, 'index'])->name('announcement');
-    Route::get('/assignments',  function () { return view('shs.assignments'); })->name('assignments');
+    Route::get('/assignments',                      [SHSAssignmentController::class, 'index'])->name('assignments');
+    Route::post('/assignments/{assignment}/submit', [SHSAssignmentController::class, 'submit'])->name('assignments.submit');
     Route::get('/quizzes',                [SHSQuizController::class, 'index'])->name('quizzes');
     Route::get('/quizzes/{quiz}',         [SHSQuizController::class, 'show'])->name('quizzes.take');
     Route::post('/quizzes/{quiz}/submit', [SHSQuizController::class, 'submit'])->name('quizzes.submit');
     Route::get('/gradebook',    function () { return view('shs.gradebook'); })->name('gradebook');
-    Route::get('/calendar',     function () { return view('shs.calendar'); })->name('calendar');
+    Route::get('/calendar',     [SHSCalendarController::class, 'index'])->name('calendar');
     Route::get('/logs',         [SHSLogController::class, 'index'])->name('logs');
 });
 
@@ -126,7 +130,8 @@ Route::middleware('faculty')->prefix('faculty')->name('faculty.')->group(functio
     Route::patch('/profile/info',     [FacultyProfileController::class, 'updateInfo'])->name('profile.update');
     Route::patch('/profile/password', [FacultyProfileController::class, 'updatePassword'])->name('profile.password');
 
-    Route::get('/students', [FacultyStudentController::class, 'index'])->name('students');
+    Route::get('/students',                   [FacultyStudentController::class, 'index'])->name('students');
+    Route::patch('/students/{student}',       [FacultyStudentController::class, 'update'])->name('students.update');
 
     Route::get('/students/{student}/sf9',  [FacultyReportFormController::class, 'sf9'])->name('students.sf9');
     Route::get('/students/{student}/sf10', [FacultyReportFormController::class, 'sf10'])->name('students.sf10');
@@ -143,11 +148,10 @@ Route::middleware('faculty')->prefix('faculty')->name('faculty.')->group(functio
     Route::get('/students/{student}/grades',   [FacultyGradeController::class, 'show'])->name('students.grades.show');
     Route::patch('/students/{student}/grades', [FacultyGradeController::class, 'update'])->name('students.grades.update');
 
-    // Placeholder routes for sidebar nav (pages to be built)
-    Route::get('/calendar', function () {
-        if (!session('faculty_id')) return redirect()->route('faculty.login');
-        return view('faculty.calendar');
-    })->name('calendar');
+    Route::get('/calendar', [FacultyCalendarController::class, 'index'])->name('calendar');
+    Route::post('/calendar/events',           [FacultyEventController::class, 'store'])->name('events.store');
+    Route::patch('/calendar/events/{event}',  [FacultyEventController::class, 'update'])->name('events.update');
+    Route::delete('/calendar/events/{event}', [FacultyEventController::class, 'destroy'])->name('events.destroy');
     Route::get('/announcements',  [FacultyAnnouncementController::class, 'index'])->name('announcements');
     Route::post('/announcements', [FacultyAnnouncementController::class, 'store'])->name('announcements.store');
     Route::get('/logs', [FacultyLogController::class, 'index'])->name('logs');

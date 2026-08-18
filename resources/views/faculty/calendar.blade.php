@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Calendar | DWCU Faculty Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -478,21 +479,50 @@
             </div>
             <div class="input-row">
                 <div class="input-field-group">
-                    <label>Day (1–31)</label>
-                    <input type="number" id="eventDateInput" min="1" max="31" required>
+                    <label>Event Date</label>
+                    <input type="date" id="eventDateInput" required>
                 </div>
                 <div class="input-field-group">
                     <label>Category</label>
                     <select id="eventTypeInput">
-                        <option value="blue">Quiz</option>
-                        <option value="green">Assignment</option>
-                        <option value="red">Examination</option>
+                        <option value="Quiz">Quiz</option>
+                        <option value="Assignment">Assignment</option>
+                        <option value="Examination">Examination</option>
                     </select>
                 </div>
             </div>
             <div class="input-field-group">
-                <label>Expiry / Due Date</label>
-                <input type="date" id="eventExpiryInput" required>
+                <label>Target Section</label>
+                <input type="hidden" id="eventModalSectionValue">
+                <div class="ann-section-dd" id="eventModalSectionDd">
+                    <button class="ann-section-dd-trigger" id="eventModalSectionTrigger" type="button">
+                        <span class="ann-section-dd-left">
+                            <i class="fas fa-layer-group"></i>
+                            <span id="eventModalSectionLabel">All Sections</span>
+                        </span>
+                        <i class="fas fa-chevron-down ann-section-dd-chevron"></i>
+                    </button>
+                    <ul class="ann-section-dd-menu" id="eventModalSectionMenu">
+                        <li class="ann-section-dd-option selected" data-value=""><i class="fas fa-border-all" style="color:#3f51b5;font-size:0.82rem;"></i> All Sections</li>
+                        <li class="ann-section-dd-group">Junior High School</li>
+                        <li class="ann-section-dd-option" data-value="Grade 7 - Explorers"><span class="grade-badge g7">7</span> Grade 7 — Explorers</li>
+                        <li class="ann-section-dd-option" data-value="Grade 8 - Researchers"><span class="grade-badge g8">8</span> Grade 8 — Researchers</li>
+                        <li class="ann-section-dd-option" data-value="Grade 9 - Innovators"><span class="grade-badge g9">9</span> Grade 9 — Innovators</li>
+                        <li class="ann-section-dd-option" data-value="Grade 10 - Leaders"><span class="grade-badge g10">10</span> Grade 10 — Leaders</li>
+                        <li class="ann-section-dd-group">Senior High School — Grade 11</li>
+                        <li class="ann-section-dd-option" data-value="Grade 11 - STEM"><span class="grade-badge g11">11</span> Grade 11 — STEM</li>
+                        <li class="ann-section-dd-option" data-value="Grade 11 - ICT"><span class="grade-badge g11">11</span> Grade 11 — ICT</li>
+                        <li class="ann-section-dd-option" data-value="Grade 11 - HUMSS"><span class="grade-badge g11">11</span> Grade 11 — HUMSS</li>
+                        <li class="ann-section-dd-group">Senior High School — Grade 12</li>
+                        <li class="ann-section-dd-option" data-value="Grade 12 - STEM"><span class="grade-badge g12">12</span> Grade 12 — STEM</li>
+                        <li class="ann-section-dd-option" data-value="Grade 12 - ICT"><span class="grade-badge g12">12</span> Grade 12 — ICT</li>
+                        <li class="ann-section-dd-option" data-value="Grade 12 - HUMSS"><span class="grade-badge g12">12</span> Grade 12 — HUMSS</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="input-field-group">
+                <label>Description <span style="font-weight:400;color:#aaa;">(optional)</span></label>
+                <textarea id="eventDescInput" rows="2" placeholder="Brief description or details..."></textarea>
             </div>
             <div class="modal-footer-btns">
                 <button type="button" class="btn-secondary" id="cancelEventModal">Cancel</button>
@@ -521,12 +551,11 @@
                     <button class="ann-section-dd-trigger" id="annModalSectionTrigger" type="button">
                         <span class="ann-section-dd-left">
                             <i class="fas fa-layer-group"></i>
-                            <span id="annModalSectionLabel">All Sections</span>
+                            <span id="annModalSectionLabel" style="color:#94a3b8;font-weight:500;">Select a class...</span>
                         </span>
                         <i class="fas fa-chevron-down ann-section-dd-chevron"></i>
                     </button>
                     <ul class="ann-section-dd-menu" id="annModalSectionMenu">
-                        <li class="ann-section-dd-option selected" data-value=""><i class="fas fa-border-all" style="color:#3f51b5;font-size:0.82rem;"></i> All Sections</li>
                         <li class="ann-section-dd-group">Junior High School</li>
                         <li class="ann-section-dd-option" data-value="Grade 7 - Explorers"><span class="grade-badge g7">7</span> Grade 7 — Explorers</li>
                         <li class="ann-section-dd-option" data-value="Grade 8 - Researchers"><span class="grade-badge g8">8</span> Grade 8 — Researchers</li>
@@ -543,24 +572,9 @@
                     </ul>
                 </div>
             </div>
-            <div class="input-row">
-                <div class="input-field-group">
-                    <label>Category</label>
-                    <select id="annCategoryInput">
-                        <option>Meeting</option>
-                        <option>Exam</option>
-                        <option>Holiday</option>
-                        <option>General</option>
-                    </select>
-                </div>
-                <div class="input-field-group">
-                    <label>Expiry Date</label>
-                    <input type="date" id="annExpiryInput" required>
-                </div>
-            </div>
             <div class="input-field-group">
-                <label>Description <span style="font-weight:400;color:#aaa;">(optional)</span></label>
-                <textarea id="annDescInput" rows="3" placeholder="Brief description or details..."></textarea>
+                <label>Content</label>
+                <textarea id="annDescInput" rows="4" placeholder="Write the announcement details..." required></textarea>
             </div>
             <div class="modal-footer-btns">
                 <button type="button" class="btn-secondary" id="cancelAnnModal">Cancel</button>
@@ -599,84 +613,67 @@
 {{-- ── Toast ── --}}
 <div class="cal-toast" id="calToast"><i class="fas fa-check-circle"></i> <span id="calToastMsg"></span></div>
 
+@php
+    $eventsJson = $events->map(fn ($e) => [
+        'id' => $e->id, 'title' => $e->title, 'description' => $e->description,
+        'date' => $e->event_date->format('Y-m-d'), 'category' => $e->category, 'section' => $e->section,
+    ])->values();
+    $annJson = $announcements->map(fn ($a) => [
+        'id' => $a->id, 'title' => $a->title, 'category' => ucfirst($a->category),
+        'date' => $a->target_date->format('Y-m-d'), 'desc' => $a->content,
+        'author' => $a->posted_by, 'audience' => $a->audience,
+    ])->values();
+@endphp
+<script type="application/json" id="events-data">{!! json_encode($eventsJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
+<script type="application/json" id="ann-data">{!! json_encode($annJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}</script>
+<script>
+window.EVENTS_ROUTES = {
+  store:   "{{ route('faculty.events.store') }}",
+  update:  "{{ url('faculty/calendar/events') }}",
+  destroy: "{{ url('faculty/calendar/events') }}",
+};
+window.ANN_STORE_ROUTE = "{{ route('faculty.announcements.store') }}";
+</script>
 <script>
 // ============================================================
-// STORAGE KEYS
+// CSRF
 // ============================================================
-const ANN_STORAGE_KEY = 'dwcu_announcements';
-const EVT_STORAGE_KEY = 'dwcu_events';
-
-// ============================================================
-// DEFAULT DATA
-// ============================================================
-const DEFAULT_EVENTS = [
-  { id:1, title:'Mathematics Quiz (Algebra)',  day:14, type:'blue',  category:'Quiz',        expiry:'2026-03-14', section:'Grade 9 - Innovators'  },
-  { id:2, title:'English Essay Submission',    day:16, type:'green', category:'Assignment',  expiry:'2026-03-16', section:'Grade 9 - Innovators'  },
-  { id:3, title:'Science Quarterly Exam',      day:20, type:'red',   category:'Examination', expiry:'2026-03-20', section:'Grade 9 - Innovators'  },
-  { id:4, title:'TLE Performance Task',        day:24, type:'green', category:'Assignment',  expiry:'2026-03-24', section:'Grade 8 - Researchers' },
-  { id:5, title:'Mathematics Long Quiz #2',    day:28, type:'blue',  category:'Quiz',        expiry:'2026-03-28', section:'Grade 9 - Innovators'  },
-  { id:6, title:'Science Fair Judging',        day:22, type:'red',   category:'Examination', expiry:'2026-03-22', section:'Grade 10 - Leaders'    },
-  { id:7, title:'ICT Programming Project Due', day: 5, type:'green', category:'Assignment',  expiry:'2026-04-05', section:'Grade 11 - ICT'        },
-  { id:8, title:'STEM Chemistry Lab Report',   day:27, type:'green', category:'Assignment',  expiry:'2026-03-27', section:'Grade 12 - STEM'       },
-];
-
-const DEFAULT_ANNOUNCEMENTS = [
-  { id:1,  title:'Quiz in Mathematics (Algebra)',     category:'Quiz',       expiry:'2026-03-14', desc:'Preparation for the upcoming Algebra quiz. Focus on Linear Equations and Factoring.',   section:'Grade 9 - Innovators',  author:'Math Dept'    },
-  { id:2,  title:'English Essay Submission',          category:'Assignment', expiry:'2026-03-16', desc:'Deadline for the descriptive essay submission. Submit your drafts via the portal.',     section:'Grade 9 - Innovators',  author:'English Dept' },
-  { id:3,  title:'Faculty Meeting – SHS Department', category:'Meeting',    expiry:'2026-03-25', desc:'Mandatory attendance for all SHS faculty. Venue: AVR Room 3, 3:00 PM.',                 section:'Grade 11 - STEM',       author:'Admin'        },
-  { id:4,  title:'Quarterly Examination Schedule',   category:'Exam',       expiry:'2026-04-01', desc:'Exam week is scheduled April 7–11. Please prepare review materials.',                   section:'Grade 12 - STEM',       author:'Admin'        },
-  { id:5,  title:'Science Fair Judging Day',          category:'Exam',       expiry:'2026-03-22', desc:'Grade 10 science fair entries will be judged on March 22, Hall B.',                    section:'Grade 10 - Leaders',    author:'Science Dept' },
-  { id:6,  title:'TLE Performance Task',             category:'Assignment', expiry:'2026-03-24', desc:'Submit your TLE performance task output to your subject teacher.',                      section:'Grade 8 - Researchers', author:'TLE Dept'     },
-  { id:7,  title:'Mathematics Long Quiz #2',         category:'Quiz',       expiry:'2026-03-28', desc:'Coverage includes Quadratic Equations and Systems of Linear Equations.',                section:'Grade 9 - Innovators',  author:'Math Dept'    },
-  { id:8,  title:'ICT Programming Project',          category:'Assignment', expiry:'2026-04-05', desc:'Submit your final programming project on the portal. Language: Python or Java.',        section:'Grade 11 - ICT',        author:'ICT Dept'     },
-  { id:9,  title:'HUMSS Research Paper Deadline',    category:'Assignment', expiry:'2026-04-03', desc:'Final research paper must be submitted to your HUMSS adviser.',                         section:'Grade 11 - HUMSS',      author:'HUMSS Dept'   },
-  { id:10, title:'STEM Chemistry Lab Report',        category:'Assignment', expiry:'2026-03-27', desc:'Laboratory report for the acid-base experiment is due Friday.',                         section:'Grade 12 - STEM',       author:'Science Dept' },
-];
-
-// ============================================================
-// STORAGE HELPERS
-// ============================================================
-function loadEvents() {
-  try { const s = localStorage.getItem(EVT_STORAGE_KEY); return s ? JSON.parse(s) : [...DEFAULT_EVENTS]; }
-  catch { return [...DEFAULT_EVENTS]; }
+function csrfToken() {
+  const m = document.querySelector('meta[name="csrf-token"]');
+  return m ? m.content : '';
 }
-function saveEvents(data) { localStorage.setItem(EVT_STORAGE_KEY, JSON.stringify(data)); }
-
-function loadAnnouncements() {
-  try { const s = localStorage.getItem(ANN_STORAGE_KEY); return s ? JSON.parse(s) : [...DEFAULT_ANNOUNCEMENTS]; }
-  catch { return [...DEFAULT_ANNOUNCEMENTS]; }
-}
-function saveAnnouncements(data) { localStorage.setItem(ANN_STORAGE_KEY, JSON.stringify(data)); }
 
 // ============================================================
-// STATE
+// STATE (server-backed)
 // ============================================================
-const TODAY    = new Date(); TODAY.setHours(0,0,0,0);
-let EVENTS        = loadEvents();
-let ANNOUNCEMENTS = loadAnnouncements();
-let nextEventId   = Math.max(...EVENTS.map(e => e.id), 0) + 1;
-let nextAnnId     = Math.max(...ANNOUNCEMENTS.map(a => a.id), 0) + 1;
+let EVENTS        = JSON.parse(document.getElementById('events-data').textContent);
+let ANNOUNCEMENTS = JSON.parse(document.getElementById('ann-data').textContent);
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
 const PER_PAGE    = 4;
 let eventPage     = 1;
 let annPage       = 1;
 let editEventId   = null;
 let currentSection = '';
-let calYear  = 2026;
-let calMonth = 2; // 0-indexed: March
+let calYear  = TODAY.getFullYear();
+let calMonth = TODAY.getMonth();
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CAT_TYPE = { 'Quiz': 'blue', 'Assignment': 'green', 'Examination': 'red' };
 
 // ============================================================
 // UTILITIES
 // ============================================================
-function isExpired(expiryStr) {
-  const d = new Date(expiryStr); d.setHours(0,0,0,0);
-  return d < TODAY;
+function parseDateStr(str) {
+  const p = str.split('-');
+  return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+}
+function isExpired(dateStr) {
+  return parseDateStr(dateStr) < TODAY;
 }
 const CAT_CLASS = {
   'Quiz':'cat-quiz', 'Assignment':'cat-assignment',
   'Examination':'cat-exam-bdg', 'Exam':'cat-exam-bdg',
-  'Meeting':'cat-meeting', 'Holiday':'cat-holiday', 'General':'cat-general',
+  'Meeting':'cat-meeting', 'Holiday':'cat-holiday', 'General':'cat-general', 'Academic':'cat-quiz', 'Urgent':'cat-exam-bdg', 'Event':'cat-meeting',
 };
 function catCls(cat) { return CAT_CLASS[cat] || 'cat-general'; }
 
@@ -702,9 +699,10 @@ function generateCalendar() {
   const firstDay = new Date(calYear, calMonth, 1).getDay();
   const lastDay  = new Date(calYear, calMonth + 1, 0).getDate();
 
-  const visible = currentSection ? EVENTS.filter(e => e.section === currentSection) : EVENTS;
+  const visible = (currentSection ? EVENTS.filter(e => e.section === currentSection) : EVENTS)
+    .filter(e => { const d = parseDateStr(e.date); return d.getFullYear() === calYear && d.getMonth() === calMonth; });
   const highlights = {};
-  visible.forEach(e => { highlights[e.day] = 'event-' + e.type; });
+  visible.forEach(e => { highlights[parseDateStr(e.date).getDate()] = 'event-' + (CAT_TYPE[e.category] || 'blue'); });
 
   tbody.innerHTML = '';
   let date = 1;
@@ -742,7 +740,8 @@ document.getElementById('calNextMonth').addEventListener('click', () => {
 // ============================================================
 function renderEvents() {
   const container = document.getElementById('eventList');
-  const filtered  = currentSection ? EVENTS.filter(e => e.section === currentSection) : EVENTS;
+  const filtered  = (currentSection ? EVENTS.filter(e => e.section === currentSection) : EVENTS)
+    .slice().sort((a, b) => parseDateStr(a.date) - parseDateStr(b.date));
   const total     = filtered.length;
   const pages     = Math.max(1, Math.ceil(total / PER_PAGE));
   if (eventPage > pages) eventPage = pages;
@@ -756,21 +755,21 @@ function renderEvents() {
   }
 
   slice.forEach(ev => {
-    const expired = isExpired(ev.expiry);
+    const expired = isExpired(ev.date);
+    const d = parseDateStr(ev.date);
     const item = document.createElement('div');
     item.className = 'deadline-item';
     item.innerHTML =
       '<div class="deadline-info">' +
-        '<span class="dot ' + ev.type + '"></span>' +
+        '<span class="dot ' + (CAT_TYPE[ev.category] || 'blue') + '"></span>' +
         '<div>' +
           '<p style="margin:0;font-weight:600;">' +
-            '<strong>' + MONTH_NAMES[calMonth] + ' ' + ev.day + '</strong> — ' + ev.title +
+            '<strong>' + MONTH_NAMES[d.getMonth()] + ' ' + d.getDate() + '</strong> — ' + ev.title +
             (expired ? '<span class="expired-badge">Expired</span>' : '') +
           '</p>' +
           '<div style="margin-top:6px;">' +
             '<span class="cat-badge ' + catCls(ev.category) + '">' + ev.category + '</span>' +
-            (ev.section ? '<span style="font-size:0.75rem;color:#94a3b8;margin-left:8px;"><i class="fas fa-users" style="font-size:0.68rem;"></i> ' + ev.section + '</span>' : '') +
-            '<span style="font-size:0.75rem;color:#94a3b8;margin-left:8px;"><i class="fas fa-calendar-times" style="font-size:0.68rem;"></i> Due: ' + ev.expiry + '</span>' +
+            (ev.section ? '<span style="font-size:0.75rem;color:#94a3b8;margin-left:8px;"><i class="fas fa-users" style="font-size:0.68rem;"></i> ' + ev.section + '</span>' : '<span style="font-size:0.75rem;color:#94a3b8;margin-left:8px;"><i class="fas fa-users" style="font-size:0.68rem;"></i> All Sections</span>') +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -792,7 +791,9 @@ function renderEvents() {
 // ============================================================
 function renderAnnouncements() {
   const container = document.getElementById('annList');
-  const filtered  = currentSection ? ANNOUNCEMENTS.filter(a => a.section === currentSection) : ANNOUNCEMENTS;
+  const filtered  = currentSection
+    ? ANNOUNCEMENTS.filter(a => a.audience === (parseInt((currentSection.match(/\d+/) || ['0'])[0]) >= 11 ? 'shs' : 'jhs') || a.audience === 'all')
+    : ANNOUNCEMENTS;
   const total     = filtered.length;
   const pages     = Math.max(1, Math.ceil(total / PER_PAGE));
   if (annPage > pages) annPage = pages;
@@ -806,22 +807,17 @@ function renderAnnouncements() {
   }
 
   slice.forEach(ann => {
-    const expired = isExpired(ann.expiry);
     const item = document.createElement('div');
-    item.className = 'announcement-item' + (expired ? ' is-expired' : '');
+    item.className = 'announcement-item';
     item.innerHTML =
       '<div class="ann-header">' +
         '<div class="ann-body">' +
-          '<span class="ann-title">' + ann.title + (expired ? '<span class="expired-badge">Expired</span>' : '') + '</span>' +
+          '<span class="ann-title">' + ann.title + '</span>' +
           '<div class="ann-foot">' +
             '<span class="cat-badge ' + catCls(ann.category) + '">' + ann.category + '</span>' +
-            (ann.section ? '<span class="ann-meta" style="margin-left:4px;"><i class="fas fa-users" style="font-size:0.68rem;"></i> ' + ann.section + '</span>' : '') +
-            '<span class="ann-meta"><i class="fas fa-calendar-times" style="font-size:0.68rem;"></i> Expires: ' + ann.expiry + '</span>' +
+            '<span class="ann-meta" style="margin-left:4px;"><i class="fas fa-calendar" style="font-size:0.68rem;"></i> ' + ann.date + '</span>' +
           '</div>' +
           (ann.desc ? '<p class="ann-desc">' + ann.desc + '</p>' : '') +
-        '</div>' +
-        '<div class="ann-actions">' +
-          '<button class="delete-action" onclick="deleteAnnouncement(' + ann.id + ')"><i class="fas fa-trash"></i></button>' +
         '</div>' +
       '</div>';
     container.appendChild(item);
@@ -838,19 +834,18 @@ function renderAnnouncements() {
 // ============================================================
 function deleteEvent(id) {
   if (!confirm('Delete this event?')) return;
-  EVENTS.splice(EVENTS.findIndex(e => e.id === id), 1);
-  saveEvents(EVENTS);
-  generateCalendar();
-  renderEvents();
-  showToast('Event deleted.');
-}
-
-function deleteAnnouncement(id) {
-  if (!confirm('Delete this announcement?')) return;
-  ANNOUNCEMENTS.splice(ANNOUNCEMENTS.findIndex(a => a.id === id), 1);
-  saveAnnouncements(ANNOUNCEMENTS);
-  renderAnnouncements();
-  showToast('Announcement deleted.');
+  fetch(window.EVENTS_ROUTES.destroy + '/' + id, {
+    method: 'DELETE',
+    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+  })
+    .then(r => r.json())
+    .then(() => {
+      EVENTS.splice(EVENTS.findIndex(e => e.id === id), 1);
+      generateCalendar();
+      renderEvents();
+      showToast('Event deleted.');
+    })
+    .catch(() => alert('Error deleting event.'));
 }
 
 // ============================================================
@@ -873,12 +868,24 @@ function changeAnnPage(dir) {
 // EVENT MODAL
 // ============================================================
 const eventModal = document.getElementById('eventModal');
+const eventSectionDd      = document.getElementById('eventModalSectionDd');
+const eventSectionTrigger = document.getElementById('eventModalSectionTrigger');
+const eventSectionLabel   = document.getElementById('eventModalSectionLabel');
+const eventSectionValue   = document.getElementById('eventModalSectionValue');
+
+function resetEventSectionPicker() {
+  eventSectionLabel.textContent = 'All Sections';
+  eventSectionValue.value = '';
+  document.querySelectorAll('#eventModalSectionMenu .ann-section-dd-option').forEach(o => o.classList.remove('selected'));
+  document.querySelector('#eventModalSectionMenu .ann-section-dd-option').classList.add('selected');
+}
 
 document.getElementById('openEventModal').onclick = () => {
   editEventId = null;
   document.getElementById('modalTitle').innerHTML = '<i class="fas fa-calendar-plus"></i> Add New Event';
   document.getElementById('saveEventBtn').textContent = 'Confirm Add';
   document.getElementById('eventForm').reset();
+  resetEventSectionPicker();
   showModal(eventModal);
 };
 
@@ -888,37 +895,69 @@ function openEditEvent(id) {
   editEventId = id;
   document.getElementById('modalTitle').innerHTML = '<i class="fas fa-pen"></i> Edit Event';
   document.getElementById('saveEventBtn').textContent = 'Update Event';
-  document.getElementById('eventTitleInput').value  = ev.title;
-  document.getElementById('eventDateInput').value   = ev.day;
-  document.getElementById('eventTypeInput').value   = ev.type;
-  document.getElementById('eventExpiryInput').value = ev.expiry;
+  document.getElementById('eventTitleInput').value = ev.title;
+  document.getElementById('eventDateInput').value  = ev.date;
+  document.getElementById('eventTypeInput').value  = ev.category;
+  document.getElementById('eventDescInput').value  = ev.description || '';
+  if (ev.section) {
+    eventSectionLabel.textContent = ev.section;
+    eventSectionValue.value = ev.section;
+    document.querySelectorAll('#eventModalSectionMenu .ann-section-dd-option').forEach(o => o.classList.toggle('selected', o.dataset.value === ev.section));
+  } else {
+    resetEventSectionPicker();
+  }
   showModal(eventModal);
 }
 
 document.getElementById('eventForm').addEventListener('submit', e => {
   e.preventDefault();
-  const title  = document.getElementById('eventTitleInput').value.trim();
-  const day    = parseInt(document.getElementById('eventDateInput').value);
-  const type   = document.getElementById('eventTypeInput').value;
-  const expiry = document.getElementById('eventExpiryInput').value;
-  const catMap = { blue: 'Quiz', green: 'Assignment', red: 'Examination' };
+  const payload = {
+    title:       document.getElementById('eventTitleInput').value.trim(),
+    event_date:  document.getElementById('eventDateInput').value,
+    category:    document.getElementById('eventTypeInput').value,
+    section:     eventSectionValue.value,
+    description: document.getElementById('eventDescInput').value.trim(),
+  };
 
-  if (editEventId !== null) {
-    const ev = EVENTS.find(e => e.id === editEventId);
-    if (ev) { ev.title = title; ev.day = day; ev.type = type; ev.expiry = expiry; ev.category = catMap[type]; }
-    showToast('Event updated.');
-  } else {
-    EVENTS.push({ id: nextEventId++, title, day, type, category: catMap[type], expiry, section: currentSection });
-    showToast('Event added.');
-  }
-  saveEvents(EVENTS);
-  generateCalendar();
-  renderEvents();
-  hideModal(eventModal);
+  const isEdit = editEventId !== null;
+  const url    = isEdit ? window.EVENTS_ROUTES.update + '/' + editEventId : window.EVENTS_ROUTES.store;
+
+  fetch(url, {
+    method: isEdit ? 'PATCH' : 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+    body: JSON.stringify(payload),
+  })
+    .then(r => { if (!r.ok) return r.json().then(err => Promise.reject(err)); return r.json(); })
+    .then(data => {
+      const ev = { id: data.event.id, title: data.event.title, description: data.event.description, date: data.event.event_date, category: data.event.category, section: data.event.section };
+      if (isEdit) {
+        const idx = EVENTS.findIndex(e => e.id === editEventId);
+        if (idx !== -1) EVENTS[idx] = ev;
+        showToast('Event updated.');
+      } else {
+        EVENTS.push(ev);
+        showToast('Event added.');
+      }
+      generateCalendar();
+      renderEvents();
+      hideModal(eventModal);
+    })
+    .catch(() => alert('Error saving event.'));
 });
 
 document.getElementById('closeEventModal').onclick  = () => hideModal(eventModal);
 document.getElementById('cancelEventModal').onclick = () => hideModal(eventModal);
+
+eventSectionTrigger.addEventListener('click', e => { e.stopPropagation(); eventSectionDd.classList.toggle('open'); });
+document.querySelectorAll('#eventModalSectionMenu .ann-section-dd-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    eventSectionValue.value = opt.dataset.value;
+    eventSectionLabel.textContent = opt.textContent.trim();
+    document.querySelectorAll('#eventModalSectionMenu .ann-section-dd-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    eventSectionDd.classList.remove('open');
+  });
+});
 
 // ============================================================
 // ANNOUNCEMENT MODAL
@@ -927,26 +966,36 @@ const annModal = document.getElementById('annModal');
 
 document.getElementById('openAnnModal').onclick = () => {
   document.getElementById('annForm').reset();
-  document.getElementById('annModalSectionLabel').textContent = 'All Sections';
+  document.getElementById('annModalSectionLabel').textContent = 'Select a class...';
+  document.getElementById('annModalSectionLabel').style.color = '#94a3b8';
+  document.getElementById('annModalSectionLabel').style.fontWeight = '500';
   document.getElementById('annModalSectionValue').value = '';
   document.querySelectorAll('#annModalSectionMenu .ann-section-dd-option').forEach(o => o.classList.remove('selected'));
-  document.querySelector('#annModalSectionMenu .ann-section-dd-option').classList.add('selected');
   showModal(annModal);
 };
 
 document.getElementById('annForm').addEventListener('submit', e => {
   e.preventDefault();
-  const title    = document.getElementById('annTitleInput').value.trim();
-  const section  = document.getElementById('annModalSectionValue').value;
-  const category = document.getElementById('annCategoryInput').value;
-  const expiry   = document.getElementById('annExpiryInput').value;
-  const desc     = document.getElementById('annDescInput').value.trim();
-  ANNOUNCEMENTS.unshift({ id: nextAnnId++, title, category, expiry, desc, section, author: 'Faculty' });
-  saveAnnouncements(ANNOUNCEMENTS);
-  annPage = 1;
-  renderAnnouncements();
-  hideModal(annModal);
-  showToast('Announcement posted.');
+  const title   = document.getElementById('annTitleInput').value.trim();
+  const section = document.getElementById('annModalSectionValue').value;
+  const content = document.getElementById('annDescInput').value.trim();
+  if (!title || !content || !section) { alert('Please select a target section.'); return; }
+
+  fetch(window.ANN_STORE_ROUTE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+    body: JSON.stringify({ title, content, section }),
+  })
+    .then(r => { if (!r.ok) return r.json().then(err => Promise.reject(err)); return r.json(); })
+    .then(data => {
+      const a = data.announcement;
+      ANNOUNCEMENTS.unshift({ id: a.id, title: a.title, category: a.category.charAt(0).toUpperCase() + a.category.slice(1), date: a.target_date, desc: a.content, author: a.posted_by, audience: a.audience });
+      annPage = 1;
+      renderAnnouncements();
+      hideModal(annModal);
+      showToast('Announcement posted.');
+    })
+    .catch(() => alert('Error posting announcement.'));
 });
 
 document.getElementById('closeAnnModal').onclick  = () => hideModal(annModal);
@@ -960,6 +1009,8 @@ document.querySelectorAll('#annModalSectionMenu .ann-section-dd-option').forEach
   opt.addEventListener('click', () => {
     document.getElementById('annModalSectionValue').value = opt.dataset.value;
     document.getElementById('annModalSectionLabel').textContent = opt.textContent.trim();
+    document.getElementById('annModalSectionLabel').style.color = '#1e2f7a';
+    document.getElementById('annModalSectionLabel').style.fontWeight = '600';
     document.querySelectorAll('#annModalSectionMenu .ann-section-dd-option').forEach(o => o.classList.remove('selected'));
     opt.classList.add('selected');
     annSectionDd.classList.remove('open');
@@ -994,6 +1045,7 @@ document.querySelectorAll('#calDropdownMenu .cal-dropdown-option').forEach(opt =
 document.addEventListener('click', () => {
   calDropdown.classList.remove('open');
   annSectionDd.classList.remove('open');
+  eventSectionDd.classList.remove('open');
 });
 
 // ============================================================

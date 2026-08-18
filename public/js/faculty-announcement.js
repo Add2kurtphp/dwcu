@@ -8,8 +8,8 @@ function csrfToken() {
 
 function loadAnnouncements() { return ANNOUNCEMENTS_DATA; }
 
-// Upcoming events aren't backed by real data yet — keep the sidebar quiet instead of showing fake ones.
-function loadEvents() { return []; }
+const EVENTS_DATA = window.EVENTS_INITIAL ? window.EVENTS_INITIAL.slice() : [];
+function loadEvents() { return EVENTS_DATA; }
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 function isExpired(expiryStr) {
@@ -75,8 +75,8 @@ function renderAnnouncements(section) {
 function renderSidebarEvents(section) {
   const list   = document.getElementById('sidebarEventList');
   const data   = loadEvents();
-  const events = (section ? data.filter(e => e.section === section) : data)
-    .sort((a,b) => a.day - b.day).slice(0, 4);
+  const events = (section ? data.filter(e => e.section === section || !e.section) : data)
+    .sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0, 4);
 
   if (events.length === 0) {
     list.innerHTML = '<p style="color:#94a3b8;font-size:0.82rem;text-align:center;padding:10px 0;">No upcoming events.</p>';
@@ -84,7 +84,7 @@ function renderSidebarEvents(section) {
   }
   list.innerHTML = events.map(ev => `
     <div class="event-item">
-      <span class="event-day">${ev.day}</span>
+      <span class="event-day">${new Date(ev.date + 'T00:00:00').getDate()}</span>
       <div class="event-text">
         <p>${ev.title}</p>
         <span>${ev.category}</span>
