@@ -148,6 +148,23 @@
             box-shadow: 0 6px 18px rgba(30,47,122,0.3); transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
         }
         .btn-submit:hover { background: #2a3f9d; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(30,47,122,0.35); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .hamburger-btn { display: block; }
+            .scroll-container { padding: 20px 16px; }
+            .main-header {
+                padding: 12px 16px; position: sticky; top: 0; z-index: 100;
+                display: flex; flex-direction: row;
+                justify-content: space-between; align-items: center;
+                flex-wrap: nowrap;
+            }
+            .main-header > div:first-child { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+            .header-user span { display: none; }
+            .quiz-intro-card { padding: 20px 20px; }
+            .q-card { padding: 18px 16px; }
+        }
     </style>
 </head>
 <body>

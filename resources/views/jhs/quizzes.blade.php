@@ -113,6 +113,21 @@
         .btn-take:hover { background:#2a3f9d; }
 
         .empty-state { text-align:center; color:#94a3b8; padding:60px 20px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .hamburger-btn { display: block; }
+            .scroll-container { padding: 20px 16px; }
+            .main-header {
+                padding: 12px 16px; position: sticky; top: 0; z-index: 100;
+                display: flex; flex-direction: row;
+                justify-content: space-between; align-items: center;
+                flex-wrap: nowrap;
+            }
+            .main-header > div:first-child { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+            .header-user span { display: none; }
+        }
     </style>
 </head>
 <body>
