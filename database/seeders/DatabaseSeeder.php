@@ -31,6 +31,8 @@ class DatabaseSeeder extends Seeder
             GradeSeeder::class,
             AnnouncementSeeder::class,
             AuditLogSeeder::class,
+            EventSeeder::class,
+            AssignmentSeeder::class,
         ]);
     }
 }
