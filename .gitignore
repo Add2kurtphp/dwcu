@@ -18,6 +18,9 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/seeded-credentials.txt
+/database/*.sqlite
+/database/*.sqlite-*
 /vendor
 Homestead.json
 Homestead.yaml
