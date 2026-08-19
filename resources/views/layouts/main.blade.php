@@ -87,15 +87,7 @@
                     PORTAL <i class="fas fa-chevron-down nav-icon"></i>
                 </a>
                 <ul class="dropdown-menu">
-                    <li class="submenu">
-                        <a href="javascript:void(0)" class="block px-6 py-3 no-underline text-[#333] text-[17px] font-medium transition-all duration-200 hover:bg-[#f1f1f1] hover:text-[#1e2f7a]">
-                            Student <i class="fas fa-chevron-right nav-icon"></i>
-                        </a>
-                        <ul class="submenu-list">
-                            <li><a href="{{ route('jhs.login') }}">Junior High School</a></li>
-                            <li><a href="{{ route('shs.login') }}">Senior High School</a></li>
-                        </ul>
-                    </li>
+                    <li><a href="{{ route('jhs.login') }}" class="block px-6 py-3 no-underline text-[#333] text-[17px] font-medium transition-all duration-200 hover:bg-[#f1f1f1] hover:text-[#1e2f7a]">Student</a></li>
                     <li><a href="{{ route('faculty.login') }}" class="block px-6 py-3 no-underline text-[#333] text-[17px] font-medium transition-all duration-200 hover:bg-[#f1f1f1] hover:text-[#1e2f7a]">Faculty</a></li>
                     <li><a href="{{ route('admin.login') }}" class="block px-6 py-3 no-underline text-[#333] text-[17px] font-medium transition-all duration-200 hover:bg-[#f1f1f1] hover:text-[#1e2f7a]">Admin</a></li>
                 </ul>
@@ -130,10 +122,7 @@
                 <h3 class="footer-col-heading text-[20px] font-bold mb-5">Portal</h3>
                 <ul class="list-none mt-4">
                     <li class="mb-3.5 text-base opacity-90 transition-all duration-300 hover:opacity-100 hover:translate-x-1">
-                        <a href="{{ route('jhs.login') }}" class="text-white no-underline inline-block">DWCU Junior High School</a>
-                    </li>
-                    <li class="mb-3.5 text-base opacity-90 transition-all duration-300 hover:opacity-100 hover:translate-x-1">
-                        <a href="{{ route('shs.login') }}" class="text-white no-underline inline-block">DWCU Senior High School</a>
+                        <a href="{{ route('jhs.login') }}" class="text-white no-underline inline-block">DWCU Student Portal</a>
                     </li>
                     <li class="mb-3.5 text-base opacity-90 transition-all duration-300 hover:opacity-100 hover:translate-x-1">
                         <a href="{{ route('faculty.login') }}" class="text-white no-underline inline-block">DWCU Faculty</a>

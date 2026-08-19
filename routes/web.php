@@ -34,6 +34,7 @@ use App\Http\Controllers\SHS\QuizController as SHSQuizController;
 use App\Http\Controllers\SHS\AnnouncementController as SHSAnnouncementController;
 use App\Http\Controllers\SHS\LogController as SHSLogController;
 use App\Http\Controllers\SHS\CalendarController as SHSCalendarController;
+use App\Http\Controllers\Student\StudentAuthController;
 use App\Http\Controllers\SHS\AssignmentController as SHSAssignmentController;
 
 // Homepage
@@ -54,9 +55,12 @@ Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
 
-// JHS Auth
-Route::get('/jhs/login',  function () { return view('auth.jhs-login'); })->name('jhs.login');
-Route::post('/jhs/login', [JHSAuthController::class, 'login'])->middleware('throttle:5,1')->name('jhs.login.post');
+// Student Auth (shared login page for JHS & SHS — portal is detected from the account after login)
+Route::get('/student/login', [StudentAuthController::class, 'showLogin'])->name('jhs.login');
+Route::post('/student/login', [StudentAuthController::class, 'login'])->middleware('throttle:5,1')->name('student.login.post');
+Route::redirect('/jhs/login', '/student/login')->name('jhs.login.legacy');
+Route::redirect('/shs/login', '/student/login')->name('shs.login');
+
 Route::post('/jhs/logout', [JHSAuthController::class, 'logout'])->name('jhs.logout');
 
 // JHS Protected Routes
@@ -87,9 +91,6 @@ Route::middleware('jhs')->prefix('jhs')->name('jhs.')->group(function () {
     Route::get('/logs', [JHSLogController::class, 'index'])->name('logs');
 });
 
-// SHS Auth
-Route::get('/shs/login',  function () { return view('auth.shs-login'); })->name('shs.login');
-Route::post('/shs/login', [SHSAuthController::class, 'login'])->middleware('throttle:5,1')->name('shs.login.post');
 Route::post('/shs/logout', [SHSAuthController::class, 'logout'])->name('shs.logout');
 
 // SHS Protected Routes

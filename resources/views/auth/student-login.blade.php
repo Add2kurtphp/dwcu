@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHS Login | DWCU Portal</title>
+    <title>Student Login | DWCU Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/css/app.css'])
@@ -30,7 +30,7 @@
 
         .input-wrapper { transition: border-color 0.3s, background 0.3s; }
         .input-wrapper:focus-within {
-            border-color: #adff2f !important;
+            border-color: #38bdf8 !important;
             background: rgba(255,255,255,0.1) !important;
         }
 
@@ -74,21 +74,21 @@
 
     {{-- ── Decorative orbs ── --}}
     <div class="orb absolute rounded-full pointer-events-none z-0"
-         style="width:400px;height:400px;background:rgba(173,255,47,0.08);
+         style="width:400px;height:400px;background:rgba(56,189,248,0.08);
                 top:-100px;right:-120px;filter:blur(85px);"></div>
     <div class="orb absolute rounded-full pointer-events-none z-0"
          style="width:360px;height:360px;background:rgba(15,23,42,0.9);
                 bottom:-80px;left:-100px;filter:blur(85px);animation-delay:3s;"></div>
     <div class="orb absolute rounded-full pointer-events-none z-0"
-         style="width:220px;height:220px;background:rgba(74,222,128,0.07);
+         style="width:220px;height:220px;background:rgba(56,189,248,0.06);
                 top:40%;left:50%;filter:blur(85px);animation-delay:6s;"></div>
 
     {{-- ── Contact Admin Modal ── --}}
     <div class="contact-overlay" id="contactAdminModal">
         <div class="contact-modal">
             <div class="w-[62px] h-[62px] rounded-full flex items-center justify-center mx-auto mb-[18px]"
-                 style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);">
-                <i class="fas fa-user-shield text-2xl" style="color:#4ade80;"></i>
+                 style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);">
+                <i class="fas fa-user-shield text-2xl" style="color:#38bdf8;"></i>
             </div>
             <h3 class="font-bold text-[1.2rem] mb-2">Contact Your Administrator</h3>
             <p class="text-[0.88rem] mb-[22px] leading-relaxed" style="color:rgba(255,255,255,0.6);">
@@ -97,22 +97,22 @@
             <div class="flex flex-col gap-3 text-left rounded-xl px-5 py-4 mb-6"
                  style="background:rgba(255,255,255,0.05);">
                 <div class="flex items-center gap-3 text-[0.9rem]" style="color:rgba(255,255,255,0.85);">
-                    <i class="fas fa-envelope w-4 text-center shrink-0" style="color:#4ade80;"></i>
+                    <i class="fas fa-envelope w-4 text-center shrink-0" style="color:#38bdf8;"></i>
                     <span>admin@dwcu.edu.ph</span>
                 </div>
                 <div class="flex items-center gap-3 text-[0.9rem]" style="color:rgba(255,255,255,0.85);">
-                    <i class="fas fa-phone w-4 text-center shrink-0" style="color:#4ade80;"></i>
+                    <i class="fas fa-phone w-4 text-center shrink-0" style="color:#38bdf8;"></i>
                     <span>+63 939 219 1887</span>
                 </div>
                 <div class="flex items-center gap-3 text-[0.9rem]" style="color:rgba(255,255,255,0.85);">
-                    <i class="fas fa-map-marker-alt w-4 text-center shrink-0" style="color:#4ade80;"></i>
+                    <i class="fas fa-map-marker-alt w-4 text-center shrink-0" style="color:#38bdf8;"></i>
                     <span>Admin Office, DWCU</span>
                 </div>
             </div>
             <button id="contactAdminClose"
                     class="w-full py-3 rounded-[10px] font-extrabold text-[0.95rem] border-none cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-                    style="background:#4ade80;color:#0d1535;"
-                    onmouseover="this.style.boxShadow='0 8px 20px rgba(74,222,128,0.35)'"
+                    style="background:#38bdf8;color:#0d1535;"
+                    onmouseover="this.style.boxShadow='0 8px 20px rgba(56,189,248,0.35)'"
                     onmouseout="this.style.boxShadow='none'">
                 Got it
             </button>
@@ -149,7 +149,7 @@
                        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
                 Login
             </h1>
-            <p class="font-semibold text-base mb-8" style="color:#94a3b8;">SHS Student Portal</p>
+            <p class="font-semibold text-base mb-8" style="color:#94a3b8;">Student Portal &mdash; Junior High &amp; Senior High</p>
 
             @if ($errors->any())
                 <div class="rounded-xl px-4 py-3 mb-5 text-sm"
@@ -158,7 +158,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('shs.login.post') }}">
+            <form method="POST" action="{{ route('student.login.post') }}">
                 @csrf
 
                 {{-- Student ID --}}
@@ -168,7 +168,7 @@
                          style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);">
                         <i class="fas fa-address-card ml-4 shrink-0" style="color:#64748b;font-size:1rem;"></i>
                         <input type="text" name="student_id" value="{{ old('student_id') }}"
-                               placeholder="Enter SHS ID (e.g. 2024-0012)" required autofocus
+                               placeholder="Enter your ID" required autofocus
                                class="bg-transparent border-none text-white w-full outline-none py-5 px-4"
                                style="font-size:1rem;font-family:'Afacad',sans-serif;">
                     </div>
@@ -180,14 +180,14 @@
                     <div class="input-wrapper flex items-center rounded-[12px] border"
                          style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);">
                         <i class="fas fa-lock ml-4 shrink-0" style="color:#64748b;font-size:1rem;"></i>
-                        <input type="password" name="password" id="shsPassword"
+                        <input type="password" name="password" id="studentPassword"
                                placeholder="Enter your password" required
                                class="bg-transparent border-none text-white w-full outline-none py-5 px-4"
                                style="font-size:1rem;font-family:'Afacad',sans-serif;">
-                        <button type="button" id="toggleShsPw" aria-label="Show password"
+                        <button type="button" id="toggleStudentPw" aria-label="Show password"
                                 class="bg-transparent border-none cursor-pointer px-4 leading-none shrink-0 transition-colors duration-200"
                                 style="font-size:1rem;color:rgba(255,255,255,0.4);"
-                                onmouseover="this.style.color='#adff2f'"
+                                onmouseover="this.style.color='#38bdf8'"
                                 onmouseout="this.style.color='rgba(255,255,255,0.4)'">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -196,9 +196,9 @@
 
                 {{-- Remember me --}}
                 <div class="flex items-center gap-2 mt-1">
-                    <input type="checkbox" name="remember" id="remember-shs"
-                           class="w-4 h-4 cursor-pointer" style="accent-color:#adff2f;">
-                    <label for="remember-shs" class="text-sm cursor-pointer select-none"
+                    <input type="checkbox" name="remember" id="remember-student"
+                           class="w-4 h-4 cursor-pointer" style="accent-color:#38bdf8;">
+                    <label for="remember-student" class="text-sm cursor-pointer select-none"
                            style="color:#94a3b8;">Remember me</label>
                 </div>
 
@@ -206,8 +206,8 @@
                 <button type="submit"
                         class="w-full rounded-[15px] font-extrabold text-[1.15rem] border-none cursor-pointer mt-6
                                transition-all duration-300 hover:-translate-y-[2px]"
-                        style="background:#adff2f;color:#0f172a;padding:16px;"
-                        onmouseover="this.style.boxShadow='0 10px 20px rgba(173,255,47,0.3)'"
+                        style="background:#38bdf8;color:#0f172a;padding:16px;"
+                        onmouseover="this.style.boxShadow='0 10px 20px rgba(56,189,248,0.3)'"
                         onmouseout="this.style.boxShadow='none'">
                     Sign In
                 </button>
@@ -215,10 +215,10 @@
 
             {{-- Footer --}}
             <div class="mt-6">
-                <p class="text-sm mb-1" style="color:#64748b;">New to DWCU SHS?</p>
+                <p class="text-sm mb-1" style="color:#64748b;">New to DWCU?</p>
                 <a href="#" id="openContactAdmin"
                    class="text-sm font-semibold no-underline hover:underline"
-                   style="color:#4ade80;">
+                   style="color:#38bdf8;">
                     Contact admin for account registration
                 </a>
             </div>
@@ -229,11 +229,11 @@
              style="flex:1;padding:40px;border-left:1px solid rgba(255,255,255,0.05);">
             <div class="flex flex-col items-center text-center gap-4">
 
-                {{-- SHS badge --}}
+                {{-- Student badge --}}
                 <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-bold tracking-widest uppercase"
-                      style="font-size:0.75rem;background:rgba(173,255,47,0.1);
-                             color:#adff2f;border:1px solid rgba(173,255,47,0.3);">
-                    <i class="fas fa-graduation-cap"></i> SHS Student Portal
+                      style="font-size:0.75rem;background:rgba(56,189,248,0.1);
+                             color:#38bdf8;border:1px solid rgba(56,189,248,0.3);">
+                    <i class="fas fa-graduation-cap"></i> Student Portal
                 </span>
 
                 <img src="{{ asset('image/logo-transparent.png') }}" alt="DWCU Logo"
@@ -245,9 +245,22 @@
                     Divine Word College<br>of Urdaneta
                 </p>
 
+                <div class="flex items-center gap-2 flex-wrap justify-center">
+                    <span class="inline-block rounded-full px-3 py-1 font-bold tracking-wider"
+                          style="font-size:0.68rem;background:rgba(173,255,47,0.1);
+                                 color:#adff2f;border:1px solid rgba(173,255,47,0.3);">
+                        Junior High
+                    </span>
+                    <span class="inline-block rounded-full px-3 py-1 font-bold tracking-wider"
+                          style="font-size:0.68rem;background:rgba(251,191,36,0.1);
+                                 color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">
+                        Senior High
+                    </span>
+                </div>
+
                 <span class="inline-block rounded-full px-4 py-1 font-bold tracking-wider"
-                      style="font-size:0.75rem;background:rgba(74,222,128,0.1);
-                             color:#4ade80;border:1px solid rgba(74,222,128,0.3);">
+                      style="font-size:0.75rem;background:rgba(255,255,255,0.06);
+                             color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.12);">
                     A.Y. 2025 – 2026
                 </span>
             </div>
@@ -265,8 +278,8 @@
             modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
         }
 
-        const toggleBtn = document.getElementById('toggleShsPw');
-        const pwInput   = document.getElementById('shsPassword');
+        const toggleBtn = document.getElementById('toggleStudentPw');
+        const pwInput   = document.getElementById('studentPassword');
         if (toggleBtn && pwInput) {
             toggleBtn.addEventListener('click', function () {
                 const isPassword = pwInput.type === 'password';
