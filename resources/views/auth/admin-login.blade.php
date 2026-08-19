@@ -27,6 +27,10 @@
             -webkit-text-fill-color: white !important;
             caret-color: white;
         }
+
+        @media (max-width: 768px) {
+            html, body { overflow-y: auto !important; height: auto !important; min-height: 100%; }
+        }
     </style>
 </head>
 
