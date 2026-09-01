@@ -7,7 +7,11 @@
       "Bash(tr '{}' '\\\\n')",
       "Bash(grep -oP \"\\\\.flex-\\\\\\\\[[\\\\d.]+\\\\\\\\]\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost/)",
-      "Bash(curl -s http://localhost/dwcu-portal/public)"
+      "Bash(curl -s http://localhost/dwcu-portal/public)",
+      "Bash(rm -f \"C:\\\\Users\\\\KURTIA~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--xampp-htdocs-dwcu-portal\\\\fb8e5507-35ec-45bc-9e8b-6d9eea87ff6f\\\\scratchpad\\\\test-security.php\" /tmp/serve.log /tmp/serve2.log /tmp/cookies.txt /tmp/cookies2.txt /tmp/loginpage.html /tmp/loginpage2.html /tmp/loginheaders.txt /tmp/postheaders.txt /tmp/postheaders2.txt /tmp/postbody.html /tmp/postbody2.html 2>&1 *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }

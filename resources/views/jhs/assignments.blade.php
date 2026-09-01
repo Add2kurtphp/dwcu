@@ -417,7 +417,7 @@
                         <i class="fas fa-check-circle"></i> Submitted
                     </button>
                 @else
-                    <button class="submit-btn" onclick="openSubmissionModal({{ $featured->id }}, '{{ addslashes($featured->subject) }}')">
+                    <button class="submit-btn" data-assignment-id="{{ $featured->id }}" data-assignment-subject="{{ $featured->subject }}" onclick="openSubmissionModal(this.dataset.assignmentId, this.dataset.assignmentSubject)">
                         <i class="fas fa-upload"></i> Submit Work
                     </button>
                 @endif
@@ -447,7 +447,7 @@
                                 <i class="fas fa-check-circle"></i> Submitted
                             </button>
                         @else
-                            <button class="submit-btn-sm" onclick="openSubmissionModal({{ $a->id }}, '{{ addslashes($a->subject) }}')">
+                            <button class="submit-btn-sm" data-assignment-id="{{ $a->id }}" data-assignment-subject="{{ $a->subject }}" onclick="openSubmissionModal(this.dataset.assignmentId, this.dataset.assignmentSubject)">
                                 <i class="fas fa-upload"></i> Submit Work
                             </button>
                         @endif
